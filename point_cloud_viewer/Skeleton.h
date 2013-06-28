@@ -10,22 +10,22 @@
 using namespace std;
 using namespace cv;
 
-class Part : public Resolution
-{
-public:
-	Part(const Skeleton& skeleton,
-		const int partIndex,
-		const Mat& pointMatrix,
-		const Mat& labelMatrix);
-	~Part() {}
-
-	bool m_valid;
-	Vec3f m_startJoint;
-	Vec3f m_endJoint;
-	Mat m_rotation;
-	Mat m_skeletonPoints;
-	Mat m_transformed;
-};
+//class Part : public Resolution
+//{
+//public:
+//	Part(const Skeleton& skeleton,
+//		const int partIndex,
+//		const Mat& pointMatrix,
+//		const Mat& labelMatrix);
+//	~Part() {}
+//
+//	bool m_valid;
+//	Vec3f m_startJoint;
+//	Vec3f m_endJoint;
+//	Mat m_rotation;
+//	Mat m_skeletonPoints;
+//	Mat m_transformed;
+//};
 
 class Skeleton : public Resolution
 {

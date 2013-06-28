@@ -19,30 +19,30 @@ const string Skeleton::TAG_SKELETON_POSITION = "SKELETON_POSITION";
 const string Skeleton::TAG_SKELETON_STATE = "SKELETON_STATE";
 const string Skeleton::TAG_SKELETON_POINTS = "SKELETON_POINTS";
 
-Part::Part(const Skeleton& skeleton,
-		   const int partIndex,
-		   const Mat& pointMatrix,
-		   const Mat& labelMatrix)
-{
-	// TODO:
-	// set indices
-	const int jointIndex = partIndex + 1;
-	const int parentIndex = Skeleton::GetParentIndex(jointIndex);
-
-	// set validity, matrix and joints from skeleton
-	bool valid1 = skeleton.m_skeletonData.eSkeletonPositionTrackingState[parentIndex];
-	bool valid2 = skeleton.m_skeletonData.eSkeletonPositionTrackingState[jointIndex];
-	m_valid = valid1 && valid2;
-
-	if(m_valid == false) return ;
-	m_rotation = skeleton.m_absoluteMatrices[jointIndex];
-	m_startJoint = skeleton.m_skeletonJoints[parentIndex];
-	m_endJoint = skeleton.m_skeletonJoints[jointIndex];
-
-	// set points from point and label matrices
-	const Mat mask = labelMatrix == partIndex;
-
-}
+//Part::Part(const Skeleton& skeleton,
+//		   const int partIndex,
+//		   const Mat& pointMatrix,
+//		   const Mat& labelMatrix)
+//{
+//	// TODO:
+//	// set indices
+//	const int jointIndex = partIndex + 1;
+//	const int parentIndex = Skeleton::GetParentIndex(jointIndex);
+//
+//	// set validity, matrix and joints from skeleton
+//	bool valid1 = skeleton.m_skeletonData.eSkeletonPositionTrackingState[parentIndex];
+//	bool valid2 = skeleton.m_skeletonData.eSkeletonPositionTrackingState[jointIndex];
+//	m_valid = valid1 && valid2;
+//
+//	if(m_valid == false) return ;
+//	m_rotation = skeleton.m_absoluteMatrices[jointIndex];
+//	m_startJoint = skeleton.m_skeletonJoints[parentIndex];
+//	m_endJoint = skeleton.m_skeletonJoints[jointIndex];
+//
+//	// set points from point and label matrices
+//	const Mat mask = labelMatrix == partIndex;
+//
+//}
 
 void Skeleton::Initialize(void)
 {
