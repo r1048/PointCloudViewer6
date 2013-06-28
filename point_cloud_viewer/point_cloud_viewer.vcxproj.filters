@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Post-Processing">
+      <UniqueIdentifier>{4aa936af-13d0-4bfb-b227-f2094eb675e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Post-Processing">
+      <UniqueIdentifier>{b81390e3-ce05-42fc-b59e-b3a306237338}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Data-Structure">
+      <UniqueIdentifier>{c35e2949-c106-40de-afbe-9cc50be918ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Handler">
+      <UniqueIdentifier>{782c1d8b-88e6-4775-beb5-6cb5fd654e95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Handler">
+      <UniqueIdentifier>{771e0454-6956-47f3-b3b7-22fd6576b9eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer">
+      <UniqueIdentifier>{577dfe62-9f94-4456-824f-8552f83566f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer">
+      <UniqueIdentifier>{9c6a7d9e-0db1-4e88-a3e4-48a0751016ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Data-Structure">
+      <UniqueIdentifier>{397d241c-b804-44b8-84c5-d85241c0a038}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Post-Processing\GraphCut">
+      <UniqueIdentifier>{c5e71521-bc4d-4b83-90b6-82d50315631b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Post-Processing\GraphCut">
+      <UniqueIdentifier>{c602559a-d32b-4430-bf55-ad7c00bf35f2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Segmentation.cpp">
+      <Filter>Source Files\Post-Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="NormalVector.cpp">
+      <Filter>Source Files\Post-Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="Transformation.cpp">
+      <Filter>Source Files\Post-Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame.cpp">
+      <Filter>Source Files\Data-Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files\Data-Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Resolution.cpp">
+      <Filter>Source Files\Data-Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Skeleton.cpp">
+      <Filter>Source Files\Data-Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Storage.cpp">
+      <Filter>Source Files\Data-Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Mapper.cpp">
+      <Filter>Source Files\Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Grabber.cpp">
+      <Filter>Source Files\Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphCut\GCoptimization.cpp">
+      <Filter>Source Files\Post-Processing\GraphCut</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphCut\graph.cpp">
+      <Filter>Source Files\Post-Processing\GraphCut</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphCut\LinkedBlockList.cpp">
+      <Filter>Source Files\Post-Processing\GraphCut</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphCut\maxflow.cpp">
+      <Filter>Source Files\Post-Processing\GraphCut</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphCut\GraphCutter.cpp">
+      <Filter>Source Files\Post-Processing</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NormalVector.h">
+      <Filter>Header Files\Post-Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Segmentation.h">
+      <Filter>Header Files\Post-Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Transformation.h">
+      <Filter>Header Files\Post-Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Grabber.h">
+      <Filter>Header Files\Handler</Filter>
+    </ClInclude>
+    <ClInclude Include="Mapper.h">
+      <Filter>Header Files\Handler</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame.h">
+      <Filter>Header Files\Data-Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Header Files\Data-Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Resolution.h">
+      <Filter>Header Files\Data-Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Skeleton.h">
+      <Filter>Header Files\Data-Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Storage.h">
+      <Filter>Header Files\Data-Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphCut\block.h">
+      <Filter>Header Files\Post-Processing\GraphCut</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphCut\energy.h">
+      <Filter>Header Files\Post-Processing\GraphCut</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphCut\GCoptimization.h">
+      <Filter>Header Files\Post-Processing\GraphCut</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphCut\graph.h">
+      <Filter>Header Files\Post-Processing\GraphCut</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphCut\LinkedBlockList.h">
+      <Filter>Header Files\Post-Processing\GraphCut</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphCut\GraphCutter.h">
+      <Filter>Header Files\Post-Processing</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
