@@ -6,6 +6,7 @@
 #include <JunhaLibrary.h>
 
 #include "Resolution.h"
+#include "StorageHandler.h"
 
 using namespace std;
 using namespace cv;

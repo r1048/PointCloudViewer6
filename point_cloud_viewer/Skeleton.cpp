@@ -205,163 +205,36 @@ bool Skeleton::Load(FileStorage& fs)
 
 bool Skeleton::SaveSkeletonJoints(FileStorage& fs) const
 {
-	if(!fs.isOpened()) return false;
-	try
-	{
-		fs << TAG_SKELETON_JOINTS << "[:";
-		for(int ii = 0; ii < m_skeletonJoints.size(); ii++)
-		{
-			const Vec3f& point = m_skeletonJoints[ii];
-			fs << static_cast<float>(point[0]);
-			fs << static_cast<float>(point[1]);
-			fs << static_cast<float>(point[2]);
-		}
-		fs << "]";
-	}
-	catch(exception e)
-	{
-		cerr << e.what() << endl;
-		return false;
-	}
-	return true;
+	return StorageHandler::Save(fs, m_skeletonJoints, TAG_SKELETON_JOINTS);
 }
 
 bool Skeleton::LoadSkeletonJoints(FileStorage& fs)
 {
-	if(!fs.isOpened()) return false;
-	try
-	{
-		vector<float> values;
-		fs[TAG_SKELETON_JOINTS] >> values;
-		if(values.size() % 3 != 0) return false;
-		m_skeletonJoints.clear();
-		const int count = values.size() / 3;
-		for(int ii = 0; ii < count; ii++)
-		{
-			Vec3f point;
-			point[0] = values[3 * ii + 0];
-			point[1] = values[3 * ii + 1];
-			point[2] = values[3 * ii + 2];
-			m_skeletonJoints.push_back(point);
-		}
-	}
-	catch(exception e)
-	{
-		cerr << e.what() << endl;
-		return false;
-	}
-	return true;
+	return StorageHandler::Load(fs, m_skeletonJoints, TAG_SKELETON_JOINTS);
 }
 
 bool Skeleton::SavePointJoints(FileStorage& fs) const
 {
-	if(!fs.isOpened()) return false;
-	try
-	{
-		fs << TAG_POINT_JOINTS << "[:";
-		for(int ii = 0; ii < m_pointJoints.size(); ii++)
-		{
-			const Vec3f& point = m_pointJoints[ii];
-			for(int jj = 0; jj < 3; jj++)
-				fs << point[jj];
-		}
-		fs << "]";
-	}
-	catch(exception e)
-	{
-		cerr << e.what() << endl;
-		return false;
-	}
-	return true;
+	return StorageHandler::Save(fs, m_pointJoints, TAG_POINT_JOINTS);
 }
-
 
 bool Skeleton::LoadPointJoints(FileStorage& fs)
 {
-	if(!fs.isOpened()) return false;
-	try
-	{
-		vector<float> values;
-		fs[TAG_POINT_JOINTS] >> values;
-		if(values.size() % 3 != 0) return false;
-		m_pointJoints.clear();
-		const int count = values.size() / 3;
-		for(int ii = 0; ii < count; ii++)
-		{
-			Vec3f point;
-			for(int jj = 0; jj < 3; jj++)
-				point[jj] = values[3 * ii + jj];
-			m_pointJoints.push_back(point);
-		}
-	}
-	catch(exception e)
-	{
-		cerr << e.what() << endl;
-		return false;
-	}
-	return true;
+	return StorageHandler::Load(fs, m_pointJoints, TAG_POINT_JOINTS);
 }
 
 bool Skeleton::SaveAbsoluteMatrices(FileStorage& fs) const
 {
-	if(!fs.isOpened()) return false;
-	try
-	{
-		char buffer[20];
-		for(int ii = 0; ii < m_absoluteMatrices.size(); ii++)
-		{
-			sprintf(buffer, "%02d", ii);
-			string tag = TAG_ABSOLUTE_MATRICES + buffer;
-			fs << tag << m_absoluteMatrices[ii];
-		}
-
-		for(int ii = 0; ii < m_hierarchicalMatrices.size(); ii++)
-		{
-			sprintf(buffer, "%02d", ii);
-			string tag = TAG_HIERARCHICAL_MATRICES + buffer;
-			fs << tag << m_hierarchicalMatrices[ii];
-		}
-	}
-	catch(exception e)
-	{
-		cerr << e.what() << endl;
-		return false;
-	}
-	return true;
+	const bool isAbsSaved = StorageHandler::Save(fs, m_absoluteMatrices, TAG_ABSOLUTE_MATRICES);
+	const bool isRelSaved = StorageHandler::Save(fs, m_hierarchicalMatrices, TAG_HIERARCHICAL_MATRICES);
+	return isAbsSaved && isRelSaved;
 }
 
 bool Skeleton::LoadAbsoluteMatrices(FileStorage& fs)
 {
-	if(!fs.isOpened()) return false;
-	try
-	{
-		m_absoluteMatrices.clear();
-		char buffer[20];
-		for(int ii = 0; ii < NUI_SKELETON_POSITION_COUNT; ii++)
-		{
-			sprintf(buffer, "%02d", ii);
-			string tag = TAG_ABSOLUTE_MATRICES + buffer;
-			Mat matrix;
-			fs[tag] >> matrix;
-			m_absoluteMatrices.push_back(matrix);
-		}
-
-		m_hierarchicalMatrices.clear();
-		for(int ii = 0; ii < NUI_SKELETON_POSITION_COUNT; ii++)
-		{
-			sprintf(buffer, "%02d", ii);
-			string tag = TAG_HIERARCHICAL_MATRICES + buffer;
-			Mat matrix;
-			fs[tag] >> matrix;
-			m_hierarchicalMatrices.push_back(matrix);
-		}
-	}
-	catch(exception e)
-	{
-		cerr << e.what() << endl;
-		return false;
-	}
-	return true;
+	const bool isAbsLoaded = StorageHandler::Load(fs, m_absoluteMatrices, TAG_ABSOLUTE_MATRICES, 20);
+	const bool isRelLoaded = StorageHandler::Load(fs, m_hierarchicalMatrices, TAG_HIERARCHICAL_MATRICES, 20);
+	return isAbsLoaded && isRelLoaded;
 }
 
 bool Skeleton::SaveSkeletonData(FileStorage& fs) const

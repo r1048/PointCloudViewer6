@@ -136,12 +136,14 @@
     <ClCompile Include="GraphCut\maxflow.cpp" />
     <ClCompile Include="Mapper.cpp" />
     <ClCompile Include="NormalVector.cpp" />
+    <ClCompile Include="Part.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Resolution.cpp" />
     <ClCompile Include="Segmentation.cpp" />
     <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="Storage.cpp" />
+    <ClCompile Include="StorageHandler.cpp" />
     <ClCompile Include="Transformation.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -155,12 +157,14 @@
     <ClInclude Include="GraphCut\LinkedBlockList.h" />
     <ClInclude Include="Mapper.h" />
     <ClInclude Include="NormalVector.h" />
+    <ClInclude Include="Part.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Resolution.h" />
     <ClInclude Include="Segmentation.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="Storage.h" />
+    <ClInclude Include="StorageHandler.h" />
     <ClInclude Include="Transformation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
