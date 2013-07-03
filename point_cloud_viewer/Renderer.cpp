@@ -315,38 +315,30 @@ void draw_skeleton(const Skeleton& skeleton)
 	const int nSlice = 25;
 
 	// set color
-	const int index = skeleton.m_skeletonData.dwUserIndex - 1;
+	// TODO: check if getIndex returns non-zero based number
+	const int index = skeleton.GetIndex() - 1;
 	const Vec3f color = SKELETON_COLOR_LIST[index];
 	glColor3f(color[0], color[1], color[2]);
-
-	const int index_list[] = {
-		0, 1, 1, 2, 2, 3,
-		2, 4, 4, 5, 5, 6, 6, 7,
-		2, 8, 8, 9, 9, 10, 10, 11,
-		0, 12, 12, 13, 13, 14, 14, 15,
-		0, 16, 16, 17, 17, 18, 18, 19};
 
 	// draw lines
 	{
 		glLineWidth(2.5f);
 		glBegin(GL_LINES);
-		int index = 0;
-		for(int ii = 0; ii < NUI_SKELETON_POSITION_COUNT - 1; ii++)
+		for(int ii = 0; ii < N_PART; ii++)
 		{
-			const int fromIndex = index_list[index++];
-			const int toIndex = index_list[index++];
-			const Vec3f& fromPoint = skeleton.m_pointJoints[fromIndex] * scale_factor;
-			const Vec3f& toPoint = skeleton.m_pointJoints[toIndex] * scale_factor;
-			glVertex3f(fromPoint[0], fromPoint[1], fromPoint[2]);
-			glVertex3f(toPoint[0], toPoint[1], toPoint[2]);
+			const Part& part = skeleton.GetPart(ii);
+			const Vec3f& startJoint = part.GetStartJoint();
+			const Vec3f& endJoint = part.GetEndJoint();
+			glVertex3f(startJoint[0], startJoint[1], startJoint[2]);
+			glVertex3f(endJoint[0], endJoint[1], endJoint[2]);
 		}
 		glEnd();
 	}
 
 	// draw joints
-	for(int ii = 0; ii < NUI_SKELETON_POSITION_COUNT; ii++)
+	for(int ii = 0; ii < N_JOINT; ii++)
 	{
-		const Vec3f& point = skeleton.m_pointJoints[ii] * scale_factor;
+		const Vec3f& point = skeleton.GetJoint(ii) * scale_factor;
 		glPushMatrix();
 		glTranslatef(point[0], point[1], point[2]);
 		glutSolidSphere(radius, nSlice, nSlice);

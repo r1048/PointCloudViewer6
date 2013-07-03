@@ -5,11 +5,14 @@
 #include <NuiApi.h>
 #include <JunhaLibrary.h>
 
+#include "Common.h"
+
 using namespace std;
 using namespace cv;
 using namespace cvflann;
 using namespace JunhaLibrary;
 
+#include "StorageHandler.h"
 
 class Resolution
 {

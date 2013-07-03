@@ -39,8 +39,7 @@ bool Player::Initialize(
 	m_storage.UpdatePoint(pMapper);
 	m_storage.UpdateSkeleton(pMapper);
 
-	m_skeleton.Initialize();
-	m_skeleton.Initialize(index, skeletonData, pMapper);
+	m_skeleton.Initialize(index, skeletonData);
 	return true;
 }
 
@@ -49,7 +48,7 @@ bool Player::Segment(void)
 	if(m_labelMatrix.empty())
 	{
 		Segmentation::ComputeLabel(
-			m_skeleton.m_pointJoints,
+			m_skeleton,
 			m_storage.GetPoint(),
 			m_labelMatrix);
 		return !m_labelMatrix.empty();
@@ -70,7 +69,7 @@ bool Player::Normal(void)
 bool Player::GraphCut(void)
 {
 	m_labelMatrix = GraphCutter::Run(
-		m_skeleton.m_pointJoints,
+		m_skeleton,
 		m_labelMatrix,
 		m_storage.GetPoint(),
 		m_normalMatrix);
@@ -81,13 +80,10 @@ bool Player::Transform(const Player& refPlayer, Mapper& mapper)
 {
 	const Skeleton& newSkeleton = GetSkeleton();
 	const Skeleton& refSkeleton = refPlayer.GetSkeleton();
-	const NUI_SKELETON_POSITION_TRACKING_STATE* trackingStates =
-		newSkeleton.m_skeletonData.eSkeletonPositionTrackingState;
-	Transformation transformation;
-	transformation.ComputeTransformation(refSkeleton, newSkeleton);
+	Transformation transformation(refSkeleton, newSkeleton);
 	
 	const Mat transformed = transformation.TransformSkeletonFrame(
-		GetStorage().GetSkeleton(), GetLabel(), trackingStates);
+		GetStorage().GetSkeleton(), GetLabel());
 	if(transformed.empty()) return false;
 	const Mat newPoint = mapper.transformSkeletonToPoint(transformed);
 	if(newPoint.empty()) return false;

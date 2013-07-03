@@ -18,7 +18,7 @@ GraphCutter::~GraphCutter(void)
 }
 
 Mat GraphCutter::Run(
-	const vector<Vec3f>& skeletonPoints,
+	const Skeleton& skeleton,
 	const Mat& labelMatrix,
 	const Mat& pointMatrix,
 	const Mat& normalMatrix)
@@ -26,6 +26,7 @@ Mat GraphCutter::Run(
 	Mat m_labelMatrix;
 
 	// assertion
+	if(skeleton.IsValid() == false) return Mat();
 	if(pointMatrix.rows != depthHeight || pointMatrix.cols != depthWidth) return Mat();
 	if(pointMatrix.empty()) return Mat();
 	if(normalMatrix.empty()) return Mat();
@@ -56,7 +57,7 @@ Mat GraphCutter::Run(
 	// compute normSim and distances
 	Mat dists, normSimilarity;
 	Segmentation::ComputeDistanceAndNorm(
-		skeletonPoints,
+		skeleton,
 		pointList,
 		normList,
 		dists,
@@ -161,16 +162,6 @@ Mat GraphCutter::Run(
 		// set initial label
 		for(int ii = 0; ii < count; ii++)
 			m_graph->setLabel(ii, labelList[ii]);
-		//if(!labelMatrix.empty())
-		////if(false)
-		//{
-		//	for(int ii = 0; ii < count; ii++)
-		//	{
-		//		const pair<int, int>& indexPair = indexList[ii];
-		//		const int label = labelMatrix.at<int>(indexPair.first, indexPair.second);
-		//		m_graph->setLabel(ii, label);
-		//	}
-		//}
 
 		minCost = INT_MAX;
 		maxCost = 0;
@@ -245,14 +236,6 @@ Mat GraphCutter::Run(
 
 	delete [] m_dataCost;
 	delete [] m_smoothCost;
-
-	// update label matrix
-	//Mat m_labelMatrix = Mat::zeros(depthHeight, depthWidth, CV_32SC1);
-	//for(int ii = 0; ii < count; ii++)
-	//{
-	//	const int label = labelList[ii];
-	//	m_labelMatrix.at<int>(indexList[ii].first, indexList[ii].second) = label;
-	//}
 
 	return m_labelMatrix;
 }

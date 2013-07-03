@@ -10,6 +10,8 @@
 #include <gl\freeglut.h>		// OpenGL header files
 #include <opencv2\ml\ml.hpp>	// Use KNN
 
+#include "Part.h"
+
 #include "Grabber.h"			// grabber header file
 #include "GraphCut\GraphCutter.h"s
 #include "Transformation.h"

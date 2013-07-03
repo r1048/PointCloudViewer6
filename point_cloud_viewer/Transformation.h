@@ -20,26 +20,22 @@ class Transformation : public Resolution
 {
 public:
 	Transformation() {Initialize();}
+	Transformation(const Skeleton& refSkeleton,
+		const Skeleton& newSkeleton)
+		{ComputeTransformations(refSkeleton, newSkeleton);}
 	~Transformation() {}
 
 	void Initialize(void);
 	bool IsValid(void) const;
 
 	vector<Mat> m_transformation;
-	void ComputeTransformation(
+	bool ComputeTransformations(
 		const Skeleton& refSkeleton,
 		const Skeleton& newSkeleton);
 
 	Mat TransformSkeletonFrame(
 		const Mat& skeletonFrame,
-		const Mat& labelFrame,
-		const NUI_SKELETON_POSITION_TRACKING_STATE* stateList);
-
+		const Mat& labelFrame);
 
 	const vector<Mat>& GetTransformations(void) const {return m_transformation;}
-
-protected:
-	static void MultiplyMatrix(const Mat& transformation, Vec3f& vector);
-	static Vec3f ApplyTransform3(const Mat& transform3x3, const Vec3f& vector);
-	static Vec3f ApplyTransform4(const Mat& transform4x4, const Vec3f& vector);
 };

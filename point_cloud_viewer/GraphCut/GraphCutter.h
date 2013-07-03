@@ -14,7 +14,7 @@ class GraphCutter :
 public:
 	GraphCutter(void);
 	GraphCutter(
-		const vector<Vec3f>& skeletonPoints,
+		const Skeleton& skeleton,
 		const Mat& labelMatrix,
 		const Mat& pointMatrix,
 		const Mat& normalMatrix);
@@ -36,7 +36,7 @@ protected:
 
 public:
 	static Mat Run(
-		const vector<Vec3f>& skeletonPoints,
+		const Skeleton& skeleton,
 		const Mat& labelMatrix,
 		const Mat& pointMatrix,
 		const Mat& normalMatrix);

@@ -147,6 +147,7 @@
     <ClCompile Include="Transformation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common.h" />
     <ClInclude Include="Frame.h" />
     <ClInclude Include="Grabber.h" />
     <ClInclude Include="GraphCut\block.h" />

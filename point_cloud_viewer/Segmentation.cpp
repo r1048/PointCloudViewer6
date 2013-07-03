@@ -88,14 +88,14 @@ void Segmentation::ComputeDistanceAndNorm(
 }
 
 void Segmentation::ComputeDistanceAndNorm(
-	const vector<Vec3f>& skeletonPoints,
+	const Skeleton& skeleton,
 	const vector<Vec3f>& pointList,
 	const vector<Vec3f>& normList,
 	Mat& dists,
 	Mat& normSimilarity)
 {
 	// assertion
-	if(skeletonPoints.size() != NUI_SKELETON_POSITION_COUNT) return;
+	if(skeleton.IsValid() == false) return;
 	if(pointList.size() == 0) return;
 	const int count = pointList.size();
 	const bool normMode = pointList.size() == normList.size();
@@ -110,20 +110,18 @@ void Segmentation::ComputeDistanceAndNorm(
 		if(normMode) normQuery = normList[ii];
 		for(int jj = 0; jj < N_PART; jj++)
 		{
-			const int currIndex = jj + 1;
-			const int parentIndex = Skeleton::GetParentIndex(currIndex);
-			const Vec3f& pointFirst = skeletonPoints[parentIndex];
-			const Vec3f& pointSecond = skeletonPoints[currIndex];
+			const Part& part = skeleton.GetPart(jj);
+			const Vec3f& startJoint = part.GetStartJoint();
+			const Vec3f& endJoint = part.GetEndJoint();
 
 			float dist, normSim;
 			ComputeDistanceAndNorm(
-				pointFirst,
-				pointSecond,
+				startJoint,
+				endJoint,
 				pointQuery,
 				normQuery,
 				dist,
 				normSim);
-
 			dists.at<float>(ii, jj) = dist;
 			if(normMode) normSimilarity.at<float>(ii, jj) = normSim;
 		}
@@ -131,12 +129,12 @@ void Segmentation::ComputeDistanceAndNorm(
 }
 
 void Segmentation::ComputeLabel(
-	const vector<Vec3f>& skeletonPoints,
+	const Skeleton& skeleton,
 	const Mat& pointMatrix,
 	Mat& labelMatrix)
 {
 	ComputeLabelAndNorm(
-		skeletonPoints,
+		skeleton,
 		pointMatrix,
 		Mat(),
 		labelMatrix,
@@ -144,7 +142,7 @@ void Segmentation::ComputeLabel(
 }
 
 void Segmentation::ComputeLabelAndNorm(
-	const vector<Vec3f>& skeletonPoints,
+	const Skeleton& skeleton,
 	const Mat& pointMatrix,
 	const Mat& normalMatrix,
 	Mat& labelMatrix,
@@ -179,7 +177,7 @@ void Segmentation::ComputeLabelAndNorm(
 	// compute normSim and distances
 	Mat dists;
 	Segmentation::ComputeDistanceAndNorm(
-		skeletonPoints,
+		skeleton,
 		pointList,
 		normList,
 		dists,

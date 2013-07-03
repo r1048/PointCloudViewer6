@@ -18,18 +18,15 @@ class Segmentation : public Resolution
 public:
 	Segmentation() {Initialize();}
 	~Segmentation() {}
-
-protected:
-	static const int N_PART = Skeleton::N_PART;
-
+	
 public:
 	static void ComputeLabel(
-		const vector<Vec3f>& skeletonPoints,
+		const Skeleton& skeleton,
 		const Mat& pointMatrix,
 		Mat& labelMatrix);
 
 	static void ComputeLabelAndNorm(
-		const vector<Vec3f>& skeletonPoints,
+		const Skeleton& skeleton,
 		const Mat& pointMatrix,
 		const Mat& normalMatrix,
 		Mat& labelMatrix,
@@ -41,7 +38,7 @@ public:
 
 	// functions used for compute label
 	static void ComputeDistanceAndNorm(
-		const vector<Vec3f>& skeletonPoints,
+		const Skeleton& skeleton,
 		const vector<Vec3f>& pointList,
 		const vector<Vec3f>& normList,
 		Mat& dists,
