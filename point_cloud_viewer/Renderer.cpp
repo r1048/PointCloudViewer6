@@ -309,24 +309,26 @@ void draw_player(
 	}
 }
 
-void draw_skeleton(const Skeleton& skeleton)
+void draw_skeleton(const Player& player, const Mapper& mapper)
 {
 	const float radius = 0.2f;
 	const int nSlice = 25;
 
 	// set color
 	// TODO: check if getIndex returns non-zero based number
-	const int index = skeleton.GetIndex() - 1;
+	const int index = player.GetIndex() - 1;
 	const Vec3f color = SKELETON_COLOR_LIST[index];
 	glColor3f(color[0], color[1], color[2]);
 
+	const Skeleton& skeleton = player.GetSkeleton();
 	// draw lines
 	{
 		glLineWidth(2.5f);
 		glBegin(GL_LINES);
 		for(int ii = 0; ii < N_PART; ii++)
 		{
-			const Part& part = skeleton.GetPart(ii);
+			const Part& skeletonPart = skeleton.GetPart(ii);
+			const Part part = mapper.transformSkeletonPartToPointPart(skeletonPart);
 			const Vec3f& startJoint = part.GetStartJoint();
 			const Vec3f& endJoint = part.GetEndJoint();
 			glVertex3f(startJoint[0], startJoint[1], startJoint[2]);
@@ -336,9 +338,11 @@ void draw_skeleton(const Skeleton& skeleton)
 	}
 
 	// draw joints
+	vector<Vec3f> pointList = mapper.transformSkeletonJointToPointJoint(skeleton.GetJointList());
 	for(int ii = 0; ii < N_JOINT; ii++)
 	{
-		const Vec3f& point = skeleton.GetJoint(ii) * scale_factor;
+		const Vec3f& point = pointList[ii] * scale_factor;
+		if(point == Vec3f(0, 0, 0)) continue;
 		glPushMatrix();
 		glTranslatef(point[0], point[1], point[2]);
 		glutSolidSphere(radius, nSlice, nSlice);
@@ -461,7 +465,7 @@ void display()
 			for(int jj = 0; jj < players.size(); jj++)
 			{
 				const Player& player = players[jj];
-				draw_skeleton(player.GetSkeleton());
+				draw_skeleton(player, frame.m_mapper);
 			}
 		}
 	}

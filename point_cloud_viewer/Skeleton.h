@@ -11,13 +11,9 @@ public:
 	~Skeleton(void) {}
 
 	// member variables
-	// valid flag: if player was tracked not inferred
-	bool m_valid;
-	// user index: starts from 1 not 0
-	int m_index;
-	// joint and part list IN SKELETON SPACE
-	vector<Vec3f> m_joints;
-	vector<Part> m_parts;
+	int m_trackingState; // tracking state: 2 if tracked
+	vector<Vec3f> m_jointList;	// joint position, N_JOINT, in skeleton space
+	vector<Part> m_partList;	// part list, N_PART, in skeleton space
 
 	void Initialize(void);
 	void Initialize(
@@ -26,10 +22,10 @@ public:
 	bool IsValid(void) const;
 
 	// Getters
+	const int GetTrackingState(void) const {return m_trackingState;}
 	const Part& GetPart(int index) const;
 	const Vec3f& GetJoint(int index) const;
 	const vector<Vec3f>& GetJointList(void) const;
-	const int GetIndex() const {return m_index;}
 
 	// IO Functions
 	bool Save(FileStorage& fs) const;
@@ -38,7 +34,10 @@ public:
 protected:
 	static const int parent_indices[20];
 
-	static const string TAG_PARTS;
+	static const string TAG_SKELETON_STATE;
+	static const string TAG_SKELETON_JOINTS;
+	static const string TAG_PART_STATES;
+	static const string TAG_PART_ROTATIONS;
 
 	void SetJoints(const NUI_SKELETON_DATA& data);
 	void SetParts(const NUI_SKELETON_DATA& data);

@@ -55,7 +55,7 @@ bool frame_mode			= true;
 bool player_index_mode	= true;
 bool is_paused			= false;
 bool smoothing_mode		= true;
-bool segmentation_mode	= true;
+bool segmentation_mode	= false;
 bool normal_mode		= false;
 bool graphcut_mode		= false;
 bool transformation_mode = true;
@@ -107,7 +107,7 @@ const Vec3b SKELETON_POSITION_COLOR_LIST[NUI_SKELETON_POSITION_COUNT - 1] =
 // display functions
 void draw_frame(const Frame& frame, const GLuint& bindIndex, const bool texture_mode = true);
 void draw_player(const Frame& frame, const Player& player, const GLuint& bindIndex, const bool texture_mode = true);
-void draw_skeleton(const Skeleton& skeleton);
+void draw_skeleton(const Player& player, const Mapper& mapper);
 void draw_segmentation(const Player& player, const GLuint& bindIndex);
 void draw_normal(const Player& player);
 

@@ -115,7 +115,38 @@ bool Mapper::Load(FileStorage& fs)
 	return true;	
 }
 
-Mat Mapper::transformSkeletonToPoint(const Mat& skeletonFrame)
+Vec3f Mapper::transformSkeletonPointTo3DPoint(const Vec3f& skeletonPoint) const
+{
+	Vec3f transformedPoint(0, 0, 0);
+
+	if(skeletonPoint == Vec3f(0, 0, 0)) return transformedPoint;
+	Vector4 skeletonPoint4;
+	skeletonPoint4.x = skeletonPoint[0];
+	skeletonPoint4.y = skeletonPoint[1];
+	skeletonPoint4.z = skeletonPoint[2];
+	NUI_COLOR_IMAGE_POINT colorPoint;
+	NUI_DEPTH_IMAGE_POINT depthPoint;
+	pMapper->MapSkeletonPointToColorPoint(
+		&skeletonPoint4,
+		NUI_IMAGE_TYPE_COLOR,
+		m_depthResolution,
+		&colorPoint);
+	pMapper->MapSkeletonPointToDepthPoint(
+		&skeletonPoint4,
+		m_depthResolution,
+		&depthPoint);
+	if(depthPoint.depth == 0) return transformedPoint;
+
+	transformedPoint[0] = colorPoint.x;
+	transformedPoint[1] = colorPoint.y;
+	transformedPoint[2] = static_cast<float>(depthPoint.depth);
+	transformedPoint[0] = -(transformedPoint[0] - CX) * transformedPoint[2] / FX;
+	transformedPoint[1] = -(transformedPoint[1] - CY) * transformedPoint[2] / FY;
+
+	return transformedPoint;
+}
+
+Mat Mapper::transformSkeletonToPoint(const Mat& skeletonFrame) const
 {
 	Mat pointFrame;
 	if(skeletonFrame.empty()) return pointFrame;
@@ -126,35 +157,49 @@ Mat Mapper::transformSkeletonToPoint(const Mat& skeletonFrame)
 	{
 		for(int cc = 0; cc < depthWidth; cc++)
 		{
-			const Vec3f& skeleton = skeletonFrame.at<Vec3f>(rr, cc);
-			if(skeleton == Vec3f(0, 0, 0)) continue;
-
-			Vector4 skeletonPoint;
-			skeletonPoint.x = skeleton[0];
-			skeletonPoint.y = skeleton[1];
-			skeletonPoint.z = skeleton[2];
-			NUI_COLOR_IMAGE_POINT colorPoint;
-			NUI_DEPTH_IMAGE_POINT depthPoint;
-			pMapper->MapSkeletonPointToColorPoint(
-				&skeletonPoint,
-				NUI_IMAGE_TYPE_COLOR,
-				m_depthResolution,
-				&colorPoint);
-			pMapper->MapSkeletonPointToDepthPoint(
-				&skeletonPoint,
-				m_depthResolution,
-				&depthPoint);
-			if(depthPoint.depth == 0) continue;
-
-			Vec3f point;
-			point[0] = colorPoint.x;
-			point[1] = colorPoint.y;
-			point[2] = static_cast<float>(depthPoint.depth);
-			point[0] = -(point[0] - CX) * point[2] / FX;
-			point[1] = -(point[1] - CY) * point[2] / FY;
-			pointFrame.at<Vec3f>(rr, cc) = point;
+			const Vec3f& skeletonPoint = skeletonFrame.at<Vec3f>(rr, cc);
+			const Vec3f transformedPoint = transformSkeletonPointTo3DPoint(skeletonPoint);
+			pointFrame.at<Vec3f>(rr, cc) = transformedPoint;
 		}
 	}
 
 	return pointFrame;
+}
+
+vector<Vec3f> Mapper::transformSkeletonJointToPointJoint(const vector<Vec3f>& skeletonJointList) const
+{
+	vector<Vec3f> pointJointList;
+	if(!IsValid()) return pointJointList;
+
+	for(int ii = 0; ii < skeletonJointList.size(); ii++)
+	{
+		const Vec3f& skeletonJoint = skeletonJointList[ii];
+		const Vec3f pointJoint = transformSkeletonPointTo3DPoint(skeletonJoint);
+		pointJointList.push_back(pointJoint);
+	}
+
+	return pointJointList;
+}
+
+Part Mapper::transformSkeletonPartToPointPart(const Part& part) const
+{
+	Part transformedPart;
+	if(!IsValid()) return transformedPart;
+
+	transformedPart.m_trackingState = part.m_trackingState;
+	transformedPart.m_partIndex = part.m_partIndex;
+	transformedPart.m_rotation = part.m_rotation;
+
+	const Vec3f& startJoint = part.GetStartJoint();
+	const Vec3f& endJoint = part.GetEndJoint();
+	const Vec3f newStartJoint = transformSkeletonPointTo3DPoint(startJoint);
+	const Vec3f newEndJoint = transformSkeletonPointTo3DPoint(endJoint);
+	const Vec3f delta = newEndJoint - newStartJoint;
+	const float length = sqrt(delta[0] * delta[0] + delta[1] * delta[1] + delta[2] * delta[2]);
+
+	transformedPart.m_length = length;
+	transformedPart.m_startJoint = newStartJoint;
+	transformedPart.m_endJoint = newEndJoint;
+
+	return transformedPart;
 }

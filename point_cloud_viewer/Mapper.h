@@ -3,6 +3,7 @@
 #include <NuiApi.h>
 
 #include "Resolution.h"
+#include "Part.h"
 
 using namespace std;
 
@@ -28,9 +29,13 @@ public:
 	bool Save(FileStorage& fs) const;
 	bool Load(FileStorage& fs);
 
-	Mat transformSkeletonToPoint(const Mat& skeletonFrame);
+	Mat transformSkeletonToPoint(const Mat& skeletonFrame) const;
+	vector<Vec3f> transformSkeletonJointToPointJoint(const vector<Vec3f>& skeletonJointList) const;
+	Part transformSkeletonPartToPointPart(const Part& part) const;
 
 protected:
 	static const string TAG_MAPPER_COUNT;
 	static const string TAG_MAPPER_DATA;
+
+	Vec3f transformSkeletonPointTo3DPoint(const Vec3f& skeletonPoint) const;
 };

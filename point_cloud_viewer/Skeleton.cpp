@@ -3,21 +3,23 @@
 const int Skeleton::parent_indices[N_JOINT] =
 	{0, 0, 1, 2, 2, 4, 5, 6, 2, 8, 9, 10, 0, 12, 13, 14, 0, 16, 17, 18};
 
-const string Skeleton::TAG_PARTS = "PARTS";
+const string Skeleton::TAG_SKELETON_STATE = "SKELETON_STATE";
+const string Skeleton::TAG_SKELETON_JOINTS = "SKELETON_JOINTS";
+const string Skeleton::TAG_PART_STATES = "PART_STATES";
+const string Skeleton::TAG_PART_ROTATIONS = "PART_ROTATIONS";
 
 void Skeleton::Initialize(void)
 {
-	m_valid = false;
-	m_index = -1;
-	m_joints.clear();
-	m_parts.clear();
+	m_trackingState = 0;
+	m_jointList.clear();
+	m_partList.clear();
 }
 
 bool Skeleton::IsValid(void) const
 {
-	return m_valid &&
-		m_parts.size() == N_PART &&
-		m_joints.size() == N_JOINT;
+	return m_trackingState == NUI_SKELETON_TRACKED &&
+		m_partList.size() == N_PART &&
+		m_jointList.size() == N_JOINT;
 }
 
 void Skeleton::Initialize(
@@ -25,48 +27,47 @@ void Skeleton::Initialize(
 	const NUI_SKELETON_DATA& skeletonData)
 {
 	Initialize();
-	m_index = index;
-	this->SetParts(skeletonData);
 	this->SetJoints(skeletonData);
+	this->SetParts(skeletonData);
 }
 
 const Part& Skeleton::GetPart(int index) const
 {
 	if(IsValid() == false) return Part();
 	if(index < 0 || index >= N_PART) return Part();
-	else return m_parts[index];
+	else return m_partList[index];
 }
 
 const Vec3f& Skeleton::GetJoint(int index) const
 {
 	if(IsValid() == false) return Vec3f(0, 0, 0);
 	if(index < 0 || index >= N_JOINT) return Vec3f(0, 0, 0);
-	else return m_joints[index];
+	else return m_jointList[index];
 }
 
 const vector<Vec3f>& Skeleton::GetJointList(void) const
 {
 	if(IsValid() == false) return vector<Vec3f>();
-	return m_joints;
+	return m_jointList;
 }
 
 void Skeleton::SetParts(const NUI_SKELETON_DATA& data)
 {
 	// set valid flag
-	m_valid = data.eTrackingState == NUI_SKELETON_TRACKED;
+	m_trackingState = data.eTrackingState;
 
 	// set flags, joints
-	vector<bool> trackingStates;
+	vector<int> trackingStates;
 	vector<Vec3f> skeletonJoints;
 	for(int ii = 0; ii < N_JOINT; ii++)
 	{
-		trackingStates.push_back(data.eSkeletonPositionTrackingState[ii] == NUI_SKELETON_POSITION_TRACKED);
+		trackingStates.push_back(data.eSkeletonPositionTrackingState[ii]);
 		skeletonJoints.push_back(StorageHandler::Vector4_to_Vec3f(data.SkeletonPositions[ii]));
 	}
 
 	// set rotation matrices
 	vector<Mat> absoluteMatrices;
-	NUI_SKELETON_BONE_ORIENTATION boneOrientations[NUI_SKELETON_POSITION_COUNT];
+	NUI_SKELETON_BONE_ORIENTATION boneOrientations[N_JOINT];
 	NuiSkeletonCalculateBoneOrientations(&data, boneOrientations);
 	absoluteMatrices.resize(N_JOINT);
 	for(int ii = 0; ii < N_JOINT; ii++)
@@ -77,20 +78,20 @@ void Skeleton::SetParts(const NUI_SKELETON_DATA& data)
 	}
 
 	// set parts
-	m_parts.clear();
+	m_partList.clear();
 	for(int ii = 0; ii < N_PART; ii++)
 	{
 		Part part;
 		part.Initialize(trackingStates, skeletonJoints, absoluteMatrices, ii);
-		m_parts.push_back(part);
+		m_partList.push_back(part);
 	}
 }
 
 void Skeleton::SetJoints(const NUI_SKELETON_DATA& data)
 {
-	this->m_joints.clear();
+	this->m_jointList.clear();
 	for(int ii = 0; ii < N_JOINT; ii++)
-		m_joints.push_back(StorageHandler::Vector4_to_Vec3f(data.SkeletonPositions[ii]));
+		m_jointList.push_back(StorageHandler::Vector4_to_Vec3f(data.SkeletonPositions[ii]));
 }
 
 Vec3f Skeleton::ConvertSkeletonToPoint(const Vector4& point4, INuiCoordinateMapper*& pMapper)
@@ -127,43 +128,68 @@ Vec3f Skeleton::ConvertSkeletonToPoint(const Vector4& point4, INuiCoordinateMapp
 }
 
 
-
+// Save skeleton data with manipulation
+// Save joints, valid flags and rotation matrices
 bool Skeleton::Save(FileStorage& fs) const
 {
-	if(!fs.isOpened() || m_parts.size() == 0) return false;
-	bool valid = true;
+	if(!fs.isOpened() || !IsValid()) return false;
 	try
 	{
-		char buffer[MAX_PATH];
-		for(int ii = 0; ii < m_parts.size() && valid; ii++)
+		fs << TAG_SKELETON_STATE << m_trackingState;
+
+		vector<float> jointList;
+		vector<Mat> rotationList;
+		vector<int> stateList;
+		for(int ii = 0; ii < N_PART; ii++)
 		{
-			sprintf(buffer, "%02d", ii);
-			string _tag = TAG_PARTS + buffer;
-			valid &= m_parts[ii].Save(fs);
+			const Part& part = m_partList[ii];
+			stateList.push_back(part.GetTrackingState());
+			rotationList.push_back(part.GetRotation());
 		}
+		for(int ii = 0; ii < N_JOINT; ii++)
+			for(int jj = 0; jj < 3; jj++)
+				jointList.push_back(m_jointList[ii][jj]);
+
+		fs << TAG_SKELETON_JOINTS << jointList;
+		fs << TAG_PART_STATES << stateList;
+		fs << TAG_PART_ROTATIONS << rotationList;
 	}
 	catch(exception e)
 	{
 		cerr << e.what() << endl;
 		return false;
 	}
-	return valid;
+	return true;
 }
 
 bool Skeleton::Load(FileStorage& fs)
 {
-	if(!fs.isOpened()) return false;
-	bool valid = true;
+	Initialize();
+
+	if(fs.isOpened() == false) return false;
 	try
 	{
-		m_parts.clear();
-		m_parts.resize(N_PART);
-		char buffer[MAX_PATH];
-		for(int ii = 0; ii < N_PART && valid; ii++)
+		fs[TAG_SKELETON_STATE] >> m_trackingState;
+
+		vector<float> joints;
+		vector<int> stateList;
+		vector<Mat> rotationList;
+		fs[TAG_SKELETON_JOINTS] >> joints;
+		fs[TAG_PART_STATES] >> stateList;
+		fs[TAG_PART_ROTATIONS] >> rotationList;
+		
+		for(int ii = 0; ii < N_JOINT; ii++)
 		{
-			sprintf(buffer, "%02d", ii);
-			string _tag = TAG_PARTS + buffer;
-			valid &= m_parts[ii].Load(fs);
+			Vec3f joint;
+			for(int jj = 0; jj < 3; jj++)
+				joint[jj] = joints[3 * ii + jj];
+			m_jointList.push_back(joint);
+		}
+		for(int ii = 0; ii < N_PART; ii++)
+		{
+			Part part;
+			part.Initialize(stateList, joints, rotationList, ii);
+			m_partList.push_back(part);
 		}
 	}
 	catch(exception e)
@@ -171,5 +197,5 @@ bool Skeleton::Load(FileStorage& fs)
 		cerr << e.what() << endl;
 		return false;
 	}
-	return valid;
+	return true;
 }

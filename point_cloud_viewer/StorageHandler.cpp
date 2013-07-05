@@ -317,6 +317,7 @@ bool StorageHandler::Load(FileStorage& fs, vector<Vec3f>& data, const string& ta
 	return true;
 }
 
+
 Vec3f StorageHandler::Vector4_to_Vec3f(const Vector4& data)
 {
 	Vec3f _data(0, 0, 0);
