@@ -260,8 +260,9 @@ void draw_frame(const Frame& frame, const GLuint& bindIndex, const bool texture_
 	const Storage& storage = frame.GetStorage();
 	const Mat& coordinate = storage.GetCoordinate();
 	Mat point;
-	storage.GetPoint().copyTo(point, frame.m_indexFrame == 0);
-	point *= scale_factor;
+	storage.GetSkeleton().copyTo(point, frame.m_indexFrame == 0);
+	//storage.GetPoint().copyTo(point, frame.m_indexFrame == 0);
+	//point *= scale_factor;
 
 	Mat color = storage.GetColor();
 	resize(color, color, Size(width, height), 0.0, 0.0, INTER_NEAREST);
@@ -321,6 +322,8 @@ void draw_skeleton(const Player& player, const Mapper& mapper)
 	glColor3f(color[0], color[1], color[2]);
 
 	const Skeleton& skeleton = player.GetSkeleton();
+	if(skeleton.IsValid() == false) return ;
+
 	// draw lines
 	{
 		glLineWidth(2.5f);
