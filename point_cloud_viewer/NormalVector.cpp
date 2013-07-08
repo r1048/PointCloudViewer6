@@ -29,13 +29,13 @@ Mat NormalVector::ComputeNormalVector(const Mat& pointMatrix)
 	vector<int> labelList;
 	Mat queryPoint;
 	Mat queryResponse;
-	Mat labelMatrix = Mat::ones(depthHeight, depthWidth, CV_32SC1) * -1;
+	Mat labelMatrix = Mat::ones(DEPTH_HEIGHT, DEPTH_WIDTH, CV_32SC1) * -1;
 
 	// generate label
 	int label = 0;
-	for(int rr = 0; rr < depthHeight; rr++)
+	for(int rr = 0; rr < DEPTH_HEIGHT; rr++)
 	{
-		for(int cc = 0; cc < depthWidth; cc++)
+		for(int cc = 0; cc < DEPTH_WIDTH; cc++)
 		{
 			Vec3f vec = pointMatrix.at<Vec3f>(rr, cc);
 			if(vec == Vec3f(0, 0, 0)) continue;
@@ -94,10 +94,10 @@ Mat NormalVector::ComputeNormalVector(const Mat& pointMatrix)
 		normalVector.at<Vec3f>(ii, 0) = normalVec3;
 	}
 
-	normalMatrix = Mat::zeros(depthHeight, depthWidth, CV_32FC3);
-	for(int rr = 0; rr < depthHeight; rr++)
+	normalMatrix = Mat::zeros(DEPTH_HEIGHT, DEPTH_WIDTH, CV_32FC3);
+	for(int rr = 0; rr < DEPTH_HEIGHT; rr++)
 	{
-		for(int cc = 0; cc < depthWidth; cc++)
+		for(int cc = 0; cc < DEPTH_WIDTH; cc++)
 		{
 			const int label = labelMatrix.at<int>(rr, cc);
 			if(label >= 0)

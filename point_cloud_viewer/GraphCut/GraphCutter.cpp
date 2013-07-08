@@ -27,7 +27,7 @@ Mat GraphCutter::Run(
 
 	// assertion
 	if(skeleton.IsValid() == false) return Mat();
-	if(pointMatrix.rows != depthHeight || pointMatrix.cols != depthWidth) return Mat();
+	if(pointMatrix.rows != DEPTH_HEIGHT || pointMatrix.cols != DEPTH_WIDTH) return Mat();
 	if(pointMatrix.empty()) return Mat();
 	if(normalMatrix.empty()) return Mat();
 
@@ -36,10 +36,10 @@ Mat GraphCutter::Run(
 	vector<Vec3f> pointList;
 	vector<Vec3f> normList;
 	vector< pair<int, int> > indexList;
-	Mat indexMap = Mat::ones(depthHeight, depthWidth, CV_32SC1) * -1;
-	for(int rr = 0; rr < depthHeight; rr++)
+	Mat indexMap = Mat::ones(DEPTH_HEIGHT, DEPTH_WIDTH, CV_32SC1) * -1;
+	for(int rr = 0; rr < DEPTH_HEIGHT; rr++)
 	{
-		for(int cc = 0; cc < depthWidth; cc++)
+		for(int cc = 0; cc < DEPTH_WIDTH; cc++)
 		{
 			const Vec3f& point = pointMatrix.at<Vec3f>(rr, cc);
 			const Vec3f& norm = normalMatrix.at<Vec3f>(rr, cc);
@@ -167,9 +167,9 @@ Mat GraphCutter::Run(
 		maxCost = 0;
 
 		// set a grid neighborhood
-		for(int rr = 0; rr < depthHeight; rr++)
+		for(int rr = 0; rr < DEPTH_HEIGHT; rr++)
 		{
-			for(int cc = 1; cc < depthWidth; cc++)
+			for(int cc = 1; cc < DEPTH_WIDTH; cc++)
 			{
 				int indexLeft = indexMap.at<int>(rr, cc - 1);
 				int indexRight = indexMap.at<int>(rr, cc);
@@ -186,9 +186,9 @@ Mat GraphCutter::Run(
 			}
 		}
 
-		for(int rr = 1; rr < depthHeight; rr++)
+		for(int rr = 1; rr < DEPTH_HEIGHT; rr++)
 		{
-			for(int cc = 0; cc < depthWidth; cc++)
+			for(int cc = 0; cc < DEPTH_WIDTH; cc++)
 			{
 				int indexTop = indexMap.at<int>(rr - 1, cc);
 				int indexBottom = indexMap.at<int>(rr, cc);
@@ -214,11 +214,10 @@ Mat GraphCutter::Run(
 		cout << "E1: " << m_graph->compute_energy() << endl;
 
 		// update label matrix
-		m_labelMatrix = Mat::zeros(depthHeight, depthWidth, CV_32SC1);
-
-		for(int rr = 0; rr < depthHeight; rr++)
+		m_labelMatrix = InitMatrix(CV_32SC1);
+		for(int rr = 0; rr < DEPTH_HEIGHT; rr++)
 		{
-			for(int cc = 0; cc < depthWidth; cc++)
+			for(int cc = 0; cc < DEPTH_WIDTH; cc++)
 			{
 				const int index = indexMap.at<int>(rr, cc);
 				if(index < 0) continue;

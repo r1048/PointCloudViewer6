@@ -5,11 +5,10 @@
 #include <string.h>
 #include <time.h>
 #include "GCoptimization.h"
-#include "../Resolution.h"
+#include "../Common.h"
 #include "../Segmentation.h"
 
-class GraphCutter :
-	public Resolution
+class GraphCutter
 {
 public:
 	GraphCutter(void);

@@ -8,6 +8,41 @@ void allocate_texture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
+void draw_storage(const Storage& storage, const Mat& mask, const bool isTexture, const Vec3f& colorLabel)
+{
+	// use resized color
+	Mat color = storage.GetColor();
+
+	// use point (indexed)
+	Mat point = Mat();
+	if(mask.empty()) point = storage.GetSkeleton();
+	else storage.GetSkeleton().copyTo(point, mask);
+
+	if(isTexture == true)
+	{
+		memcpy_s(texcoords.data, sizeof(float) * width * height * 2,
+			storage.GetCoordinate().data, sizeof(float) * width * height * 2);
+		glEnable(GL_TEXTURE_2D);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, point.data);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(2, GL_FLOAT, 0, texcoords.data);
+		glBindTexture(GL_TEXTURE_2D, all_texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, color.data);
+		glPointSize(pointSizeColor);
+		glDrawElements(GL_POINTS, width * height, GL_UNSIGNED_INT, indices);
+		glDisable(GL_TEXTURE_2D);
+	}
+	else
+	{
+		glColor3f(colorLabel[0], colorLabel[1], colorLabel[2]);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, point.data);
+		glPointSize(pointSizePoint);
+		glDrawElements(GL_POINTS, width * height, GL_UNSIGNED_INT, indices);
+	}
+}
+
 void assign_texture(const Mat& point, const Mat& coordinate, const Mat& color, const GLuint& bindIndex)
 {
 	memcpy_s(texcoords.data, sizeof(float) * width * height * 2,
@@ -178,21 +213,6 @@ void draw_center(void)
 	glutBitmapCharacter( GLUT_BITMAP_9_BY_15, 'z' );
 }
 
-
-void draw_triangle(const Vec3f pos, const float dl)
-{
-	float xx = pos[0];
-	float yy = pos[1];
-	float zz = pos[2];
-
-	glBegin(GL_TRIANGLES);
-	glVertex3f(xx + 00, yy + dl, zz);
-	glVertex3f(xx - dl, yy - dl, zz);
-	glVertex3f(xx + dl, yy - dl, zz);
-	glEnd();
-}
-
-
 void prepare_data()
 {
 	if(online_mode == false) return ;
@@ -258,27 +278,28 @@ void transform()
 void draw_frame(const Frame& frame, const GLuint& bindIndex, const bool texture_mode)
 {
 	const Storage& storage = frame.GetStorage();
-	const Mat& coordinate = storage.GetCoordinate();
-	Mat point;
-	storage.GetSkeleton().copyTo(point, frame.m_indexFrame == 0);
-	//storage.GetPoint().copyTo(point, frame.m_indexFrame == 0);
-	//point *= scale_factor;
+	draw_storage(storage, frame.m_indexFrame == 0, texture_mode, Vec3f(0.5f, 0.5f, 0.5f));
 
-	Mat color = storage.GetColor();
-	resize(color, color, Size(width, height), 0.0, 0.0, INTER_NEAREST);
+	//const Storage& storage = frame.GetStorage();
+	//const Mat& coordinate = storage.GetCoordinate();
+	//Mat point;
+	//storage.GetSkeleton().copyTo(point, frame.m_indexFrame == 0);
 
-	if(texture_mode)
-	{
-		assign_texture(point, coordinate, color, bindIndex);
-	}
-	else 
-	{
-		glColor3f(0.5f, 0.5f, 0.5f);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, point.data);
-		glPointSize(pointSizePoint);
-		glDrawElements(GL_POINTS, width * height, GL_UNSIGNED_INT, indices);
-	}
+	//Mat color = storage.GetColor();
+	//resize(color, color, Size(width, height), 0.0, 0.0, INTER_NEAREST);
+
+	//if(texture_mode)
+	//{
+	//	assign_texture(point, coordinate, color, bindIndex);
+	//}
+	//else 
+	//{
+	//	glColor3f(0.5f, 0.5f, 0.5f);
+	//	glEnableClientState(GL_VERTEX_ARRAY);
+	//	glVertexPointer(3, GL_FLOAT, 0, point.data);
+	//	glPointSize(pointSizePoint);
+	//	glDrawElements(GL_POINTS, width * height, GL_UNSIGNED_INT, indices);
+	//}
 }
 
 void draw_player(
@@ -289,30 +310,33 @@ void draw_player(
 {
 	const int index = player.GetIndex() - 1;
 	const Vec3f colorLabel = SKELETON_COLOR_LIST[index];
-	glColor3f(colorLabel[0], colorLabel[1], colorLabel[2]);
-
 	const Storage& storage = player.GetStorage();
-	const Mat& coordinate = storage.GetCoordinate();
-	Mat point = storage.GetPoint() * scale_factor;
-	Mat color = frame.GetStorage().GetColor();
-	resize(color, color, Size(width, height), 0.0, 0.0, INTER_NEAREST);
+	draw_storage(storage, Mat(), texture_mode, colorLabel);	
 
-	if(texture_mode)
-	{
-		assign_texture(point, coordinate, color, bindIndex);
-	}
-	else 
-	{
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, point.data);
-		glPointSize(pointSizeColor);
-		glDrawElements(GL_POINTS, width * height, GL_UNSIGNED_INT, indices);
-	}
+	//glColor3f(colorLabel[0], colorLabel[1], colorLabel[2]);
+
+	//const Storage& storage = player.GetStorage();
+	//const Mat& coordinate = storage.GetCoordinate();
+	//Mat point = storage.GetSkeleton();
+	//Mat color = frame.GetStorage().GetColor();
+	//resize(color, color, Size(width, height), 0.0, 0.0, INTER_NEAREST);
+
+	//if(texture_mode)
+	//{
+	//	assign_texture(point, coordinate, color, bindIndex);
+	//}
+	//else 
+	//{
+	//	glEnableClientState(GL_VERTEX_ARRAY);
+	//	glVertexPointer(3, GL_FLOAT, 0, point.data);
+	//	glPointSize(pointSizeColor);
+	//	glDrawElements(GL_POINTS, width * height, GL_UNSIGNED_INT, indices);
+	//}
 }
 
 void draw_skeleton(const Player& player, const Mapper& mapper)
 {
-	const float radius = 0.2f;
+	const float radius = 0.02f;
 	const int nSlice = 25;
 
 	// set color
@@ -330,8 +354,7 @@ void draw_skeleton(const Player& player, const Mapper& mapper)
 		glBegin(GL_LINES);
 		for(int ii = 0; ii < N_PART; ii++)
 		{
-			const Part& skeletonPart = skeleton.GetPart(ii);
-			const Part part = mapper.transformSkeletonPartToPointPart(skeletonPart);
+			const Part& part = skeleton.GetPart(ii);
 			const Vec3f& startJoint = part.GetStartJoint();
 			const Vec3f& endJoint = part.GetEndJoint();
 			glVertex3f(startJoint[0], startJoint[1], startJoint[2]);
@@ -341,10 +364,10 @@ void draw_skeleton(const Player& player, const Mapper& mapper)
 	}
 
 	// draw joints
-	vector<Vec3f> pointList = mapper.transformSkeletonJointToPointJoint(skeleton.GetJointList());
+	vector<Vec3f> pointList = skeleton.GetJointList();
 	for(int ii = 0; ii < N_JOINT; ii++)
 	{
-		const Vec3f& point = pointList[ii] * scale_factor;
+		const Vec3f& point = pointList[ii];
 		if(point == Vec3f(0, 0, 0)) continue;
 		glPushMatrix();
 		glTranslatef(point[0], point[1], point[2]);
@@ -359,7 +382,7 @@ void draw_segmentation(const Player& player, const GLuint& bindIndex)
 	Mat color = Mat::zeros(height, width, CV_8UC3);
 	const Storage& storage = player.GetStorage();
 	const Mat& labelMatrix = player.GetLabel();
-	const Mat& pointMatrix = storage.GetPoint();
+	const Mat& pointMatrix = storage.GetSkeleton();
 	for(int rr = 0; rr < height; rr++) 
 	{
 		for(int cc = 0; cc < width; cc++)
@@ -386,7 +409,7 @@ void draw_normal(const Player& player)
 	glColor3f(1.0f, 1.0f, 1.0f);
 
 	const Mat& normalMatrix = player.GetNormal();
-	const Mat& pointMatrix = player.GetStorage().GetPoint();
+	const Mat& pointMatrix = player.GetStorage().GetSkeleton();
 	if(!normalMatrix.empty() && !pointMatrix.empty())
 	{
 		for(int rr = 0; rr < height; rr++)

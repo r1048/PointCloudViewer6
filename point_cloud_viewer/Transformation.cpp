@@ -38,12 +38,12 @@ Mat Transformation::TransformSkeletonFrame(
 	// initialization
 	Mat transformedSkeletonFrame;
 	if(IsValid() == false) return transformedSkeletonFrame;
-	InitPointMatrix(transformedSkeletonFrame);
+	transformedSkeletonFrame = InitMatrix(CV_32FC3);
 
 	// transform pixel by pixel
-	for(int rr = 0; rr < depthHeight; rr++)
+	for(int rr = 0; rr < DEPTH_HEIGHT; rr++)
 	{
-		for(int cc = 0; cc < depthWidth; cc++)
+		for(int cc = 0; cc < DEPTH_WIDTH; cc++)
 		{
 			// get point
 			Vec3f point = skeletonFrame.at<Vec3f>(rr, cc);

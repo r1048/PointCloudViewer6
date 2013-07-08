@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Common.cpp" />
     <ClCompile Include="Frame.cpp" />
     <ClCompile Include="Grabber.cpp" />
     <ClCompile Include="GraphCut\GCoptimization.cpp" />

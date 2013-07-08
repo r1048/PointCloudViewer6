@@ -11,7 +11,6 @@ void Player::Initialize(void)
 	m_skeleton = Skeleton();
 	m_labelMatrix = Mat();
 	m_normalMatrix = Mat();
-	//m_segment = Segmentation();
 }
 
 bool Player::IsValid(void) const
@@ -20,25 +19,16 @@ bool Player::IsValid(void) const
 }
 
 bool Player::Initialize(
-		const Storage& storage,
-		const Mat& indexFrame,
-		const int index,
-		const NUI_SKELETON_DATA& skeletonData,
-		INuiCoordinateMapper*& pMapper)
+	const Storage& storage,
+	const Mat& indexFrame,
+	const int index,
+	const NUI_SKELETON_DATA& skeletonData)
 {
-	if(!storage.IsValid()) return false;
-	if(indexFrame.empty()) return false;
+	if(!storage.IsValid() || indexFrame.empty()) return false;
 	if(index <= 0 || index > NUI_SKELETON_COUNT) return false;
-	if(skeletonData.eTrackingState == NUI_SKELETON_NOT_TRACKED) return false;
 
-	this->m_index = index;
-
-	m_storage.Initialize();
-	m_storage.UpdateColor(storage.GetColor(), indexFrame, index);
-	m_storage.UpdateDepth(storage.GetDepth(), indexFrame, index);
-	m_storage.UpdatePoint(pMapper);
-	m_storage.UpdateSkeleton(pMapper);
-
+	m_index = index;
+	m_storage.Update(storage, indexFrame == index);
 	m_skeleton.Initialize(index, skeletonData);
 	return true;
 }
@@ -49,7 +39,7 @@ bool Player::Segment(void)
 	{
 		Segmentation::ComputeLabel(
 			m_skeleton,
-			m_storage.GetPoint(),
+			m_storage.GetSkeleton(),
 			m_labelMatrix);
 		return !m_labelMatrix.empty();
 	}
@@ -60,7 +50,7 @@ bool Player::Normal(void)
 {
 	if(m_normalMatrix.empty())
 	{
-		m_normalMatrix = NormalVector::ComputeNormalVector(m_storage.GetPoint());
+		m_normalMatrix = NormalVector::ComputeNormalVector(m_storage.GetSkeleton());
 		return !m_normalMatrix.empty();
 	}
 	else return true;
@@ -71,7 +61,7 @@ bool Player::GraphCut(void)
 	m_labelMatrix = GraphCutter::Run(
 		m_skeleton,
 		m_labelMatrix,
-		m_storage.GetPoint(),
+		m_storage.GetSkeleton(),
 		m_normalMatrix);
 	return true;
 }
@@ -85,28 +75,15 @@ bool Player::Transform(const Player& refPlayer, Mapper& mapper)
 	const Mat transformed = transformation.TransformSkeletonFrame(
 		GetStorage().GetSkeleton(), GetLabel());
 	if(transformed.empty()) return false;
-	const Mat newPoint = mapper.transformSkeletonToPoint(transformed);
-	if(newPoint.empty()) return false;
-	m_storage.UpdateTransformed(newPoint);
+	m_storage.UpdateSkeleton(transformed);
 	cout << "transformed" << endl;
 	return true;
-}
-
-void Player::Smoothing(INuiCoordinateMapper*& pMapper)
-{
-	m_storage.Smoothing(pMapper);
 }
 
 void Player::UpdateColorFrame(const Mat& colorFrame)
 {
 	m_storage.UpdateColor(colorFrame);
 }
-
-void Player::UpdatePointFrame(const Mat& pointFrame)
-{
-	m_storage.UpdatePointFrame(pointFrame);
-}
-
 
 bool Player::Save(const string& path) const
 {
@@ -116,8 +93,8 @@ bool Player::Save(const string& path) const
 	if(isSaved) fs << TAG_PLAYER_INDEX << m_index;
 	if(isSaved) isSaved &= m_storage.SaveStorage(fs);
 	if(isSaved) isSaved &= m_skeleton.Save(fs);
-	if(isSaved && !m_labelMatrix.empty()) isSaved &= SaveMatrix(fs, TAG_LABEL_MATRIX, m_labelMatrix);
-	if(isSaved && !m_normalMatrix.empty()) isSaved &= SaveMatrix(fs, TAG_NORMAL_MATRIX, m_normalMatrix);
+	if(isSaved && !m_labelMatrix.empty()) isSaved &= StorageHandler::Save(fs, m_labelMatrix, TAG_LABEL_MATRIX);
+	if(isSaved && !m_normalMatrix.empty()) isSaved &= StorageHandler::Save(fs, m_normalMatrix, TAG_NORMAL_MATRIX);
 	if(fs.isOpened()) fs.release();
 	return isSaved;
 }
@@ -132,8 +109,8 @@ bool Player::Load(const string& path)
 	if(isLoaded) fs[TAG_PLAYER_INDEX] >> m_index;
 	if(isLoaded) isLoaded &= m_storage.LoadStorage(fs);
 	if(isLoaded) isLoaded &= m_skeleton.Load(fs);
-	if(isLoaded) LoadMatrix(fs, TAG_LABEL_MATRIX, m_labelMatrix);
-	if(isLoaded) LoadMatrix(fs, TAG_NORMAL_MATRIX, m_normalMatrix);
+	if(isLoaded) StorageHandler::Load(fs, m_labelMatrix, TAG_LABEL_MATRIX);
+	if(isLoaded) StorageHandler::Load(fs, m_normalMatrix, TAG_NORMAL_MATRIX);
 	if(fs.isOpened()) fs.release();
 	return isLoaded;
 }

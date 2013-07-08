@@ -8,6 +8,7 @@
 #include <NuiApi.h>
 #include <JunhaLibrary.h>
 
+#include "Common.h"
 #include "Player.h"
 #include "Frame.h"
 
@@ -15,7 +16,7 @@ using namespace std;
 using namespace cv;
 using namespace JunhaLibrary;
 
-class Grabber : public Resolution
+class Grabber
 {
 public:
 	Grabber(void);

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Resolution.h"
+#include "Common.h"
 #include "Player.h"
 #include "Mapper.h"
 #include "Segmentation.h"
 
-class NormalVector : public Resolution
+class NormalVector
 {
 public:
 	NormalVector(void);

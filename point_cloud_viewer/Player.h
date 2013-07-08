@@ -5,7 +5,8 @@
 #include <NuiApi.h>
 #include <JunhaLibrary.h>
 
-#include "Resolution.h"
+#include "Common.h"
+#include "StorageHandler.h"
 #include "Storage.h"
 #include "Skeleton.h"
 #include "Segmentation.h"
@@ -19,7 +20,7 @@ using namespace cv;
 using namespace cvflann;
 using namespace JunhaLibrary;
 
-class Player : public Resolution
+class Player
 {
 public:
 	Player() {Initialize();}
@@ -39,8 +40,7 @@ public:
 		const Storage& storage,
 		const Mat& indexFrame,
 		const int index,
-		const NUI_SKELETON_DATA& skeletonData,
-		INuiCoordinateMapper*& pMapper);
+		const NUI_SKELETON_DATA& skeletonData);
 	bool IsValid(void) const;
 	bool Segment(void);
 	bool Normal(void);
@@ -53,7 +53,6 @@ public:
 	const Mat& GetLabel(void) const {return m_labelMatrix;}
 	const Mat& GetNormal(void) const {return m_normalMatrix;}
 
-	void Smoothing(INuiCoordinateMapper*& pMapper);
 	void UpdateColorFrame(const Mat& colorFrame);
 	void UpdatePointFrame(const Mat& pointFrame);
 

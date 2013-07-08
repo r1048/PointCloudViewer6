@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Resolution.h"
+#include "Common.h"
+#include "Mapper.h"
 
 using namespace std;
 using namespace cv;
 
-class Storage : public Resolution
+class Storage
 {
 public:
 	Storage() {Initialize();}
@@ -14,14 +15,12 @@ public:
 protected:
 	Mat m_colorFrame;
 	Mat m_depthFrame;
-	Mat m_pointFrame;
 	Mat m_skeletonFrame;
 	Mat m_coordinateFrame;
 
 public:
 	const Mat& GetColor(void) const {return m_colorFrame;}
 	const Mat& GetDepth(void) const {return m_depthFrame;}
-	const Mat& GetPoint(void) const {return m_pointFrame;}
 	const Mat& GetSkeleton(void) const {return m_skeletonFrame;}
 	const Mat& GetCoordinate(void) const {return m_coordinateFrame;}
 
@@ -35,26 +34,22 @@ public:
 	bool SaveStorage(FileStorage& fs) const;
 	bool LoadStorage(FileStorage& fs);
 
+	void Update(const Storage& storage, const Mat& mask);
+
 	void UpdateColor(const unsigned char*& colorSrc);
 	void UpdateColor(const Mat& colorSrc, const Mat& indexFrame = Mat(), const int index = 0);
 	void UpdateDepth(const NUI_DEPTH_IMAGE_PIXEL*& depthSrc, Mat& indexFrame);
 	void UpdateDepth(const Mat& depthSrc, const Mat& indexFrame, const int index);
-	void UpdatePoint(INuiCoordinateMapper*& pMapping);
-	void UpdateSkeleton(INuiCoordinateMapper*& pMapping);
-	void UpdateCoordinate();
-
-	void Smoothing(INuiCoordinateMapper*& pMapping);
-	void UpdatePointFrame(const Mat& pointFrame);
-	void UpdateTransformed(const Mat& transformed);
+	void UpdateDepth(const Mat& depthSrc);
+	void UpdateSkeleton(const Mat& transformed);
+	void UpdateSkeletonAndCoordinate(const Mapper& mapper);
 
 private:
 	bool SaveStorage(const string& dataPath) const;
 	bool LoadStorage(const string& storagePath);
 
-private:
 	static const string TAG_COLOR;
 	static const string TAG_DEPTH;
-	static const string TAG_POINT;
 	static const string TAG_SKELETON;
 	static const string TAG_COORDINATE;
 };

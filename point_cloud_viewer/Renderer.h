@@ -133,6 +133,7 @@ void InitGL(int, int, const string);
 void allocate_texture();
 void assign_texture(const Mat& point, const Mat& coordinate, const Mat& color, const GLuint& bindIndex);
 void update_texture();
+void draw_storage(const Storage& storage, const Mat& mask, const bool isTexture, const Vec3f& colorLabel);
 
 void draw_triangle(const Vec3f pos, const float dl);
 Mat assign_label(const int idx = 1);

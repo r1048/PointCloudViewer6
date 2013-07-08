@@ -10,13 +10,13 @@
 #include <gl\freeglut.h>		// OpenGL header files
 #include <opencv2\ml\ml.hpp>	// Use KNN
 
-#include "Resolution.h"
+#include "Common.h"
 #include "Skeleton.h"
 
 using namespace cv;
 using namespace std;
 
-class Transformation : public Resolution
+class Transformation
 {
 public:
 	Transformation() {Initialize();}

@@ -5,6 +5,9 @@ const NUI_IMAGE_RESOLUTION Resolution::m_depthResolution = NUI_IMAGE_RESOLUTION_
 const NUI_IMAGE_RESOLUTION Resolution::m_indexResolution = NUI_IMAGE_RESOLUTION_640x480;
 const NUI_IMAGE_RESOLUTION Resolution::m_pointResolution = NUI_IMAGE_RESOLUTION_640x480;
 
+const Size Resolution::depthSize = Size(depthWidth, depthHeight);
+const Size Resolution::colorSize = Size(colorWidth, colorHeight);
+
 const float Resolution::FX = 5.9421434211923247e+02f;
 const float Resolution::FY = 5.9104053696870778e+02f;
 const float Resolution::CX = 3.3930780975300314e+02f;
@@ -34,16 +37,4 @@ void Resolution::InitIndexMatrix(Mat& indexMatrix)
 	else memset(indexMatrix.ptr<int>(0), 0, sizeof(int) * depthCount);
 }
 
-bool Resolution::SaveMatrix(FileStorage& fs, const string tag, const Mat& data)
-{
-	if(!fs.isOpened() || data.empty()) return false;
-	fs << tag << data;
-	return true;
-}
 
-bool Resolution::LoadMatrix(FileStorage& fs, const string tag, Mat& data)
-{
-	if(!fs.isOpened()) return false;
-	fs[tag] >> data;
-	return true;
-}

@@ -123,7 +123,7 @@ HRESULT Grabber::CreateFirstConnected()
 		// Open image stream
 		hr = m_pNuiSensor->NuiImageStreamOpen(
             NUI_IMAGE_TYPE_COLOR,
-			m_colorResolution,
+			COLOR_RESOLUTION,
             0,
             2,
             m_hNextColorFrameEvent,
@@ -132,7 +132,7 @@ HRESULT Grabber::CreateFirstConnected()
 
 		hr = m_pNuiSensor->NuiImageStreamOpen(
 			NUI_IMAGE_TYPE_DEPTH_AND_PLAYER_INDEX,
-			m_depthResolution,
+			DEPTH_RESOLUTION,
             0,
             2,
             m_hNextDepthFrameEvent,
@@ -235,11 +235,7 @@ HRESULT Grabber::UpdateStorage(DWORD waitMillis, const bool smoothing_mode)
     {
 		frame.UpdateMapper(m_pNuiSensor);
 		frame.UpdateDepth(lockedRect);
-		frame.UpdatePoint();
-		frame.UpdateSkeleton();
-
-		if(smoothing_mode)
-			frame.Smoothing();
+		frame.UpdateSkeletonAndCoordinate(smoothing_mode);
 
 		frame.UpdatePlayers(skeletonFrame);
     }

@@ -22,7 +22,7 @@ bool Frame::Load(const string& path, const string& timestamp, const vector<strin
 		isLoaded &= fs.open(strStoragePath, FileStorage::READ);
 		isLoaded &= m_storage.LoadStorage(fs);
 		isLoaded &= m_mapper.Load(fs);
-		isLoaded &= LoadMatrix(fs, TAG_INDEX_FRAME, m_indexFrame);
+		isLoaded &= StorageHandler::Load(fs, m_indexFrame, TAG_INDEX_FRAME);
 		if(fs.isOpened()) fs.release();
 	}
 
@@ -64,7 +64,7 @@ bool Frame::Save(const string& path)
 		isSaved &= fs.open(strStoragePath, FileStorage::WRITE);
 		isSaved &= m_storage.SaveStorage(fs);
 		isSaved &= m_mapper.Save(fs);
-		isSaved &= SaveMatrix(fs, TAG_INDEX_FRAME, m_indexFrame);
+		isSaved &= StorageHandler::Save(fs, m_indexFrame, TAG_INDEX_FRAME);
 		if(fs.isOpened()) fs.release();
 	}
 
@@ -111,23 +111,36 @@ bool Frame::UpdateMapper(INuiSensor*& pNuiSensor)
 	return m_mapper.Initialize(pNuiSensor);
 }
 
-void Frame::UpdatePoint()
+void Frame::UpdateSkeletonAndCoordinate(const bool isSmoothing)
 {
 	if(m_mapper.IsValid())
-		m_storage.UpdatePoint(m_mapper.GetMapper());
-}
-
-void Frame::UpdateSkeleton()
-{
-	if(m_mapper.IsValid())
-		m_storage.UpdateSkeleton(m_mapper.GetMapper());
+	{
+		if(isSmoothing) Smoothing();
+		m_storage.UpdateSkeletonAndCoordinate(m_mapper);
+	}
 }
 
 void Frame::Smoothing()
 {
-	m_storage.Smoothing(m_mapper.GetMapper());
-	for(int ii = 0; ii < m_players.size(); ii++)
-		m_players[ii].Smoothing(m_mapper.GetMapper());
+	if(!IsValid()) return;
+
+	const int fSize = 5;
+	const float fSigData = 40.0f;
+	const float fSigSpace = 10.0f;
+	
+	// compute filtered depth
+	Mat uDepthFrame = m_storage.GetDepth();
+	Mat fDepthFrame = InitMatrix(CV_32FC1);
+	Mat zeroFrame = uDepthFrame == 0;
+	uDepthFrame.convertTo(uDepthFrame, CV_32FC1);
+	bilateralFilter(uDepthFrame, fDepthFrame, fSize, fSigData, fSigSpace);
+
+	// update depth
+	fDepthFrame.setTo(Scalar(0), zeroFrame);
+	fDepthFrame.convertTo(uDepthFrame, CV_16UC1);
+
+	// update filtered depth
+	m_storage.UpdateDepth(uDepthFrame);
 }
 
 void Frame::UpdatePlayers(const NUI_SKELETON_FRAME& skeletonFrame)
@@ -137,14 +150,12 @@ void Frame::UpdatePlayers(const NUI_SKELETON_FRAME& skeletonFrame)
 	{
 		const int index = ii + 1;
 		Player player;
-		bool isInitialized = player.Initialize(
+		bool initialized = player.Initialize(
 			m_storage,
 			m_indexFrame,
 			index,
-			skeletonFrame.SkeletonData[ii],
-			m_mapper.GetMapper());
-		if(isInitialized)
-			m_players.push_back(player);
+			skeletonFrame.SkeletonData[ii]);
+		if(initialized) m_players.push_back(player);
 	}
 }
 

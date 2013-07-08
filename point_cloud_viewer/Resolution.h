@@ -37,9 +37,11 @@ protected:
 	static const int depthWidth = 640;
 	static const int depthHeight = 480;
 	static const int depthCount = depthWidth * depthHeight;
+	static const Size depthSize;
 	static const int colorWidth = 1280;
 	static const int colorHeight = 960;
 	static const int colorCount = colorWidth * colorHeight;
+	static const Size colorSize;
 
 	static void InitColorMatrix(Mat& colorMatrix);
 	static void InitDepthMatrix(Mat& depthMatrix);

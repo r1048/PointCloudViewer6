@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Resolution.h"
+#include "Common.h"
+#include "StorageHandler.h"
 
 using namespace std;
 using namespace cv;
 
-class Part : public Resolution
+class Part
 {
 public:
 	Part(void);

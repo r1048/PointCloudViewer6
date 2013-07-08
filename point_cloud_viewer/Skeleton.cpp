@@ -94,40 +94,6 @@ void Skeleton::SetJoints(const NUI_SKELETON_DATA& data)
 		m_jointList.push_back(StorageHandler::Vector4_to_Vec3f(data.SkeletonPositions[ii]));
 }
 
-Vec3f Skeleton::ConvertSkeletonToPoint(const Vector4& point4, INuiCoordinateMapper*& pMapper)
-{
-	Vec3f fpoint;
-	NUI_DEPTH_IMAGE_POINT dpoint;
-	NUI_COLOR_IMAGE_POINT cpoint;
-	USHORT dd;
-
-	// convert skeleton to depth
-	NuiTransformSkeletonToDepthImage(
-		point4,
-		&dpoint.x, &dpoint.y, &dd,
-		m_depthResolution);
-	dd = (dd & 0xfff8) >> 3;
-	dpoint.depth = static_cast<LONG>(dd);
-
-	// convert depth to color
-	pMapper->MapDepthPointToColorPoint(
-		m_depthResolution,
-		&dpoint,
-		NUI_IMAGE_TYPE_COLOR,
-		m_depthResolution,
-		&cpoint);
-	dpoint.x = cpoint.x;
-	dpoint.y = cpoint.y;
-
-	// convert color to point
-	fpoint[0] = -(cpoint.x - CX) * dpoint.depth / FX;
-	fpoint[1] = -(cpoint.y - CY) * dpoint.depth / FY;
-	fpoint[2] = dpoint.depth;
-
-	return fpoint;
-}
-
-
 // Save skeleton data with manipulation
 // Save joints, valid flags and rotation matrices
 bool Skeleton::Save(FileStorage& fs) const

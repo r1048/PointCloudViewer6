@@ -1,10 +1,12 @@
 #pragma once
 
+#include "Common.h"
+#include "StorageHandler.h"
 #include "Storage.h"
 #include "Player.h"
 #include "Mapper.h"
 
-class Frame : public Resolution
+class Frame
 {
 public:
 	Frame() {Initialize();}
@@ -28,10 +30,7 @@ public:
 	bool UpdateMapper(INuiSensor*& pNuiSensor);
 	void UpdateColor(const NUI_LOCKED_RECT& lockedRect);
 	void UpdateDepth(const NUI_LOCKED_RECT& lockedRect);
-	void UpdatePoint();
-	void UpdateSkeleton();
-
-	void Smoothing();
+	void UpdateSkeletonAndCoordinate(const bool isSmoothing);
 	
 	void UpdatePlayers(const NUI_SKELETON_FRAME& skeletonFrame);
 	void SegmentPlayers();
@@ -46,4 +45,6 @@ public:
 
 protected:
 	static const string TAG_INDEX_FRAME;
+
+	void Smoothing();
 };

@@ -4,7 +4,7 @@
 #include "Resolution.h"
 #include "Part.h"
 
-class Skeleton : public Resolution
+class Skeleton
 {
 public:
 	Skeleton(void) {Initialize();}
@@ -41,7 +41,4 @@ protected:
 
 	void SetJoints(const NUI_SKELETON_DATA& data);
 	void SetParts(const NUI_SKELETON_DATA& data);
-
-	Mat ConvertMatrix4ToMat3x3(const Matrix4& rotation);
-	Vec3f ConvertSkeletonToPoint(const Vector4& point4, INuiCoordinateMapper*& pMapper);
 };

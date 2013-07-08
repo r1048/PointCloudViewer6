@@ -5,7 +5,7 @@
 #include <NuiApi.h>
 #include <JunhaLibrary.h>
 
-#include "Resolution.h"
+#include "Common.h"
 #include "Skeleton.h"
 
 using namespace std;
@@ -13,7 +13,7 @@ using namespace cv;
 using namespace cvflann;
 using namespace JunhaLibrary;
 
-class Segmentation : public Resolution
+class Segmentation
 {
 public:
 	Segmentation() {Initialize();}
