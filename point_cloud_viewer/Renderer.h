@@ -44,22 +44,20 @@ const float scale_factor = 0.01f;
 char path[MAX_PATH];
 
 // Use the RGB texture or just draw it as color
-bool frame_texture_mode		= true;
-bool player_texture_mode	= true;
 bool near_mode			= false;
-bool screen_mode		= true;
 bool online_mode		= true;
-bool clipping_mode		= false;
-bool skeleton_mode		= true;
-bool frame_mode			= true;
-bool player_index_mode	= true;
-bool is_paused			= false;
 bool smoothing_mode		= true;
-bool segmentation_mode	= true;
-bool normal_mode		= false;
-bool graphcut_mode		= false;
-bool transformation_mode = true;
+int segmentation_mode	= 0;
+bool transformation_mode = false;
 bool auto_mode = false;
+
+bool display_paused			= false;
+bool display_frame			= true;
+bool display_frame_texture	= true;
+bool display_player_texture = true;
+bool display_screen			= true;
+bool display_skeleton		= true;
+bool display_normal_mode	= false;
 
 const float pointSizeColor = 1.5f;
 const float pointSizePoint = 1.0f;
@@ -123,10 +121,8 @@ void motion(int, int);
 
 void auto_save();
 void save();
-void prepare_data();
 void segmentation();
-void graph_cut();
-void compute_normal();
+void prepare_data();
 void transform();
 
 void InitGL(int, int, const string);

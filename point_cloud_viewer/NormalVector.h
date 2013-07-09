@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Mapper.h"
 #include "Segmentation.h"
+#include <opencv2/flann/flann.hpp>
 
 class NormalVector
 {

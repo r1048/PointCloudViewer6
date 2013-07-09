@@ -33,9 +33,7 @@ public:
 	void UpdateSkeletonAndCoordinate(const bool isSmoothing);
 	
 	void UpdatePlayers(const NUI_SKELETON_FRAME& skeletonFrame);
-	void SegmentPlayers();
-	void NormalPlayers();
-	void GraphCutPlayers();
+	bool LabelPlayers(const int method);
 	void TransformPlayers(const Frame& refFrame);
 
 public:

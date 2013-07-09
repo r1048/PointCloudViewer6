@@ -4,7 +4,7 @@ const string Frame::SUFFIX_COLOR = "-color.png";
 const string Frame::SUFFIX_STORAGE = "-storage.yml";
 const string Frame::SUFFIX_PLAYER = "-player";
 
-const string Frame::TAG_INDEX_FRAME = "INEX_FRAME";
+const string Frame::TAG_INDEX_FRAME = "INDEX_FRAME";
 
 bool Frame::Load(const string& path, const string& timestamp, const vector<string>& filelist)
 {
@@ -159,31 +159,15 @@ void Frame::UpdatePlayers(const NUI_SKELETON_FRAME& skeletonFrame)
 	}
 }
 
-void Frame::SegmentPlayers()
+bool Frame::LabelPlayers(const int method)
 {
+	bool isLabeled = true;
 	for(int ii = 0; ii < m_players.size(); ii++)
 	{
 		Player& player = m_players[ii];
-		player.Segment();
+		isLabeled &= player.Label(method);
 	}
-}
-
-void Frame::NormalPlayers()
-{
-	for(int ii = 0; ii < m_players.size(); ii++)
-	{
-		Player& player = m_players[ii];
-		player.Normal();
-	}
-}
-
-void Frame::GraphCutPlayers()
-{
-	for(int ii = 0; ii < m_players.size(); ii++)
-	{
-		Player& player = m_players[ii];
-		player.GraphCut();
-	}
+	return isLabeled;
 }
 
 void Frame::TransformPlayers(const Frame& refFrame)

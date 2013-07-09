@@ -91,10 +91,7 @@ void InitGL(int width, int height, const string path)
 			frames.push_back(frame);
 		}
 
-		if(segmentation_mode || graphcut_mode) normal_mode = true;
-		if(normal_mode) compute_normal();
-		if(segmentation_mode) segmentation();
-		if(graphcut_mode) graph_cut();
+		if(segmentation_mode > 0) segmentation();
 		if(transformation_mode) transform();
 	}
 	else frames.resize(1);
@@ -131,10 +128,11 @@ void Initialize(int argc, char* argv[])
 
 	// initialize _* variables
 	indices = new unsigned int[width * height];
-	for(int ii = 0; ii < width * height; ii++) indices[ii] = ii;
+	for(int ii = 0; ii < width * height; ii++)
+		indices[ii] = ii;
 
 	// set directory and path
-	sprintf(path, "../../data/%s/", JunhaLibrary::GetDate());
+	sprintf(path, "../../data/%s/", JunhaLibrary::GetDate().c_str());
 	JunhaLibrary::FileLoader::mkdir(path, false);
 	InitGL(width, height, path);
 	allocate_texture();
@@ -144,7 +142,7 @@ void Initialize(int argc, char* argv[])
 void Deallocate()
 {
 	CloseHandle(hMutex);
-	delete [] indices;
+	if(indices != NULL) delete [] indices;
 	glDeleteTextures(1, &all_texture);
 }
 
@@ -162,8 +160,8 @@ void auto_save(void)
 	{
 		refTime = currTime;
 		online_mode = false;
-		graphcut_mode = true;
-		graph_cut();
+		segmentation_mode = 1;
+		segmentation();
 		save();
 		online_mode = true;
 	}
@@ -229,38 +227,12 @@ void prepare_data()
 
 void segmentation()
 {
-	if(segmentation_mode == false) return;
-
+	if(segmentation_mode == 0) return ;
 	for(int ii = 0; ii < frames.size(); ii++)
 	{
 		Frame& frame = frames[ii];
-		frame.SegmentPlayers();
+		frame.LabelPlayers(segmentation_mode);
 	}
-}
-
-void graph_cut()
-{
-	if(graphcut_mode == false) return ;
-	if(normal_mode == false) normal_mode = true;
-	compute_normal();
-
-	for(int ii = 0; ii < frames.size(); ii++)
-	{
-		Frame& frame = frames[ii];
-		frame.GraphCutPlayers();
-	}
-}
-
-void compute_normal()
-{
-	if(normal_mode == false) return;
-
-	for(int ii = 0; ii < frames.size(); ii++)
-	{
-		Frame& frame = frames[ii];
-		frame.NormalPlayers();
-	}
-	cout << "Compute Normal" << endl;
 }
 
 void transform()
@@ -394,17 +366,16 @@ void draw_segmentation(const Player& player, const GLuint& bindIndex)
 			color.at<Vec3b>(rr, cc) = SKELETON_POSITION_COLOR_LIST[label];
 		}
 	}
-	Mat point = pointMatrix * scale_factor;
-	assign_texture(point, storage.GetCoordinate(), color, all_texture);
-}
 
-void draw_graphcut(const Player& player, const GLuint& bindIndex)
-{
-	draw_segmentation(player, bindIndex);
+	assign_texture(pointMatrix, storage.GetCoordinate(), color, all_texture);
+	//draw_storage(storage, mask, isTexture, colorLabel);
+	//Mat point = pointMatrix * scale_factor;
+	//assign_texture(point, storage.GetCoordinate(), color, all_texture);
 }
 
 void draw_normal(const Player& player)
 {
+	if(display_normal_mode == false) return ;
 	glBegin(GL_LINES);
 	glColor3f(1.0f, 1.0f, 1.0f);
 
@@ -420,7 +391,7 @@ void draw_normal(const Player& player)
 				if(normalVector == Vec3f(0.0f, 0.0f, 0.0f)) continue;
 				else 
 				{
-					const Vec3f fromPoint = pointMatrix.at<Vec3f>(rr, cc) * scale_factor;
+					const Vec3f fromPoint = pointMatrix.at<Vec3f>(rr, cc);
 					const Vec3f toPoint = fromPoint + normalVector;
 					glVertex3f(fromPoint[0], fromPoint[1], fromPoint[2]);
 					glVertex3f(toPoint[0], toPoint[1], toPoint[2]);
@@ -434,7 +405,7 @@ void draw_normal(const Player& player)
 void display()
 {
 	if(online_mode) prepare_data();
-	if(is_paused) return ;
+	if(display_paused) return ;
 
 	// clear buffers
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -458,31 +429,29 @@ void display()
 
 
 	// draw
-	if(screen_mode)
+	if(display_screen)
 	{
 		for(int ii = 0; ii < frames.size(); ii++)
 		{
 			const Frame& frame = frames[ii];
 			const vector<Player>& players = frame.GetPlayers();
-			if(frame_mode)
-				draw_frame(frame, all_texture, frame_texture_mode);
+			if(display_frame)
+				draw_frame(frame, all_texture, display_frame_texture);
 
 			for(int jj = 0; jj < players.size(); jj++)
 			{
 				const Player& player = players[jj];
-				if(segmentation_mode && !online_mode)
+				if(segmentation_mode > 0 && !online_mode)
 					draw_segmentation(player, all_texture);
-				else if(graphcut_mode && !online_mode)
-					draw_graphcut(player, all_texture);
 				else
-					draw_player(frame, player, all_texture, player_texture_mode);
-				if(normal_mode)
+					draw_player(frame, player, all_texture, display_player_texture);
+				if(display_normal_mode)
 					draw_normal(player);
 			}
 		}
 	}
 
-	if(skeleton_mode)
+	if(display_skeleton)
 	{
 		for(int ii = 0; ii < frames.size(); ii++)
 		{
@@ -550,14 +519,9 @@ void keyboard(unsigned char key, int x, int y)
 		grabber.ToggleNearMode();
 	}
 
-	else if( key == 'i') 
-	{
-		player_index_mode = !player_index_mode;
-	}
-
 	else if( key == 'p')
 	{
-		is_paused = !is_paused;
+		display_paused = !display_paused;
 	}
 
 	else if( key == 's' )
@@ -565,8 +529,8 @@ void keyboard(unsigned char key, int x, int y)
 		save();
 	}
 
-	else if(key == 'q') screen_mode = !screen_mode;
-	else if(key == 'w') frame_mode = !frame_mode;
+	else if(key == 'q') display_screen = !display_screen;
+	else if(key == 'w') display_frame = !display_frame;
 
 	else if(key == 'o')
 	{
@@ -582,38 +546,33 @@ void keyboard(unsigned char key, int x, int y)
 		}
 	}
 
-	else if(key == '1')	frame_texture_mode = !frame_texture_mode;
-	else if(key == '2') player_texture_mode = !player_texture_mode;
-	else if(key == '3')	skeleton_mode = !skeleton_mode;
-	else if(key == '4') {
-		segmentation_mode = !segmentation_mode;
-		if(segmentation_mode && online_mode) 
+	else if(key == '1')	display_frame_texture = !display_frame_texture;
+	else if(key == '2') display_player_texture = !display_player_texture;
+	else if(key == '3')	display_skeleton = !display_skeleton;
+	else if(key == '4' || key == '5') {
+		if(segmentation_mode > 0) segmentation_mode = 0;
+		else segmentation_mode = key == '4' ? 1 : 2;
+		if(segmentation_mode > 0 && online_mode)
 		{
 			online_mode = false;
 			segmentation();
 		}
 	}
-	else if(key == '5') {
-		normal_mode = !normal_mode;
-		if(normal_mode && online_mode) {
-			online_mode = false;
-			compute_normal();
-		}
-	}
 	else if(key == '6') {
-		graphcut_mode = !graphcut_mode;
-		if(graphcut_mode && online_mode)
-		{
+		display_normal_mode = !display_normal_mode;
+		if(display_normal_mode && online_mode)
 			online_mode = false;
-			graph_cut();
-		}
 	}
 
-	else if(key == 'c') clipping_mode = !clipping_mode;
 	else if(key == 'm') smoothing_mode = !smoothing_mode;
+	else if(key == 't') {
+		transformation_mode = !transformation_mode;
+		if(transformation_mode && online_mode) online_mode = false;
+		InitGL(width, height, path);
+	}
 
-	if(key != 27)
-		glutPostRedisplay();
+	// redisplay!
+	if(key != 27) glutPostRedisplay();
 }
 
 void reshape( int width, int height )
@@ -889,9 +848,16 @@ void build_rotmatrix(float m[4][4], float q[4])
 
 int main(int argc, char* argv[])
 {
-	Initialize(argc, argv);
-	glutMainLoop();
+	try
+	{
+		Initialize(argc, argv);
+		glutMainLoop();
+		cout << "finished" << endl;
+	}
+	catch(exception e)
+	{
+		cerr << e.what() << endl;
+	}
 	Deallocate();
-	cout << "finished" << endl;
     return 0;
 }

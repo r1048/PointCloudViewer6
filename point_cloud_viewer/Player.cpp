@@ -18,6 +18,38 @@ bool Player::IsValid(void) const
 	return m_storage.IsValid();
 }
 
+bool Player::IsNormalComputed(void) const
+{
+	return !m_normalMatrix.empty();
+}
+
+bool Player::IsLabeled(void) const
+{
+	return !m_labelMatrix.empty();
+}
+
+bool Player::Label(const int method)
+{
+	if(method < 0 || method > 2) return false;
+
+	// do not label
+	else if(method == 0) return false;
+
+	// method: simple segmentation
+	else if(method == 1)
+	{
+		return Segment();
+	}
+
+	// method: graph cut with normal computation involved
+	else
+	{
+		Normal();
+		if(IsNormalComputed()) return GraphCut();
+		else return false;
+	}
+}
+
 bool Player::Initialize(
 	const Storage& storage,
 	const Mat& indexFrame,
@@ -26,6 +58,7 @@ bool Player::Initialize(
 {
 	if(!storage.IsValid() || indexFrame.empty()) return false;
 	if(index <= 0 || index > NUI_SKELETON_COUNT) return false;
+	if(skeletonData.eTrackingState == NUI_SKELETON_NOT_TRACKED) return false;
 
 	m_index = index;
 	m_storage.Update(storage, indexFrame == index);
@@ -72,12 +105,10 @@ bool Player::Transform(const Player& refPlayer, Mapper& mapper)
 	const Skeleton& refSkeleton = refPlayer.GetSkeleton();
 	Transformation transformation(refSkeleton, newSkeleton);
 	
+	if(IsLabeled() == false) Label(1); // simply segment the player
 	const Mat transformed = transformation.TransformSkeletonFrame(
 		GetStorage().GetSkeleton(), GetLabel());
-	if(transformed.empty()) return false;
-	m_storage.UpdateSkeleton(transformed);
-	cout << "transformed" << endl;
-	return true;
+	return m_storage.UpdateSkeleton(transformed);
 }
 
 void Player::UpdateColorFrame(const Mat& colorFrame)

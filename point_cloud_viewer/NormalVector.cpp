@@ -22,6 +22,7 @@ bool NormalVector::IsValid(void) const
 
 Mat NormalVector::ComputeNormalVector(const Mat& pointMatrix)
 {
+	cout << "compute normal vector: begin" << endl;
 	Mat normalMatrix;
 	if(pointMatrix.empty()) return normalMatrix;
 
@@ -47,10 +48,9 @@ Mat NormalVector::ComputeNormalVector(const Mat& pointMatrix)
 		}
 	}
 
-	if(pointList.size() != labelList.size() ||
-		pointList.size() != label)
-		return normalMatrix;
+	if(pointList.size() != labelList.size() || pointList.size() != label) return normalMatrix;
 	const int nLabel = label;
+	cout << "nLabel: " << nLabel << endl;
 
 	// generate query data
 	queryPoint = Mat::zeros(nLabel, 1, CV_32FC3);
@@ -60,15 +60,18 @@ Mat NormalVector::ComputeNormalVector(const Mat& pointMatrix)
 	queryResponse = Mat::zeros(nLabel, 1, CV_32SC1);
 	for(int ii = 0; ii < nLabel; ii++)
 		queryResponse.at<int>(ii, 0) = labelList[ii];
+	cout << "gen query" << endl;
 
 	// train a kNN
 	KNearest knn;
 	knn.train(queryPoint, queryResponse);
+	cout << "train knn" << endl;
 
 	// nearest neighbor list
 	const int nn = 12;
 	Mat indices, dists;
 	knn.find_nearest(queryPoint, nn + 1, Mat(), indices, dists);
+	cout << "find nearest" << endl;
 
 	// estimate normal vector using nearest neighbors
 	queryPoint = queryPoint.reshape(3);
@@ -93,6 +96,7 @@ Mat NormalVector::ComputeNormalVector(const Mat& pointMatrix)
 		if(normalVec3[2] > 0) normalVec3 = -normalVec3;
 		normalVector.at<Vec3f>(ii, 0) = normalVec3;
 	}
+	cout << "estimate normal vector" << endl;
 
 	normalMatrix = Mat::zeros(DEPTH_HEIGHT, DEPTH_WIDTH, CV_32FC3);
 	for(int rr = 0; rr < DEPTH_HEIGHT; rr++)
@@ -104,6 +108,7 @@ Mat NormalVector::ComputeNormalVector(const Mat& pointMatrix)
 				normalMatrix.at<Vec3f>(rr, cc) = normalVector.at<Vec3f>(label, 0);
 		}
 	}
+	cout << "copy normal vectors" << endl;
 
 	return normalMatrix;
 }

@@ -37,7 +37,8 @@ Mat Transformation::TransformSkeletonFrame(
 {
 	// initialization
 	Mat transformedSkeletonFrame;
-	if(IsValid() == false) return transformedSkeletonFrame;
+	if(IsValid() == false || skeletonFrame.empty() || labelFrame.empty())
+		return transformedSkeletonFrame;
 	transformedSkeletonFrame = InitMatrix(CV_32FC3);
 
 	// transform pixel by pixel

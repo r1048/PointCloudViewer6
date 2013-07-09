@@ -150,12 +150,11 @@ void Segmentation::ComputeLabelAndNorm(
 {
 	// assertion
 	labelMatrix = Mat();
-	if(pointMatrix.rows != DEPTH_HEIGHT || pointMatrix.cols != DEPTH_WIDTH) return ;
 	if(pointMatrix.empty()) return ;
+	if(pointMatrix.rows != DEPTH_HEIGHT || pointMatrix.cols != DEPTH_WIDTH) return ;
 	const bool normMode = !normalMatrix.empty();
 
 	// count valid points
-	int count = 0;
 	vector<Vec3f> pointList;
 	vector<Vec3f> normList;
 	vector< pair<int, int> > indexList;
@@ -186,7 +185,7 @@ void Segmentation::ComputeLabelAndNorm(
 	// set label wrt distance and norm
 	vector<int> labelList;
 	const float maxRatio = 0.4f;
-	for(int ii = 0; ii < count; ii++)
+	for(int ii = 0; ii < pointList.size(); ii++)
 	{
 		int index1 = -1;
 		int index2 = -1;
@@ -223,6 +222,6 @@ void Segmentation::ComputeLabelAndNorm(
 
 	// generate label matrix from lists
 	labelMatrix = InitMatrix(CV_32SC1);
-	for(int ii = 0; ii < count; ii++)
+	for(int ii = 0; ii < pointList.size(); ii++)
 		labelMatrix.at<int>(indexList[ii].first, indexList[ii].second) = labelList[ii];
 }

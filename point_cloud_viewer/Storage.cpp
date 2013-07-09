@@ -100,10 +100,11 @@ void Storage::UpdateSkeletonAndCoordinate(const Mapper& mapper)
 		m_coordinateFrame);
 }
 
-void Storage::UpdateSkeleton(const Mat& transformed)
+bool Storage::UpdateSkeleton(const Mat& transformed)
 {
-	if(transformed.empty()) return ;
+	if(transformed.empty()) return false;
 	m_skeletonFrame = transformed;
+	return true;
 }
 
 

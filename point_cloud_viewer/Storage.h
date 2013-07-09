@@ -41,7 +41,7 @@ public:
 	void UpdateDepth(const NUI_DEPTH_IMAGE_PIXEL*& depthSrc, Mat& indexFrame);
 	void UpdateDepth(const Mat& depthSrc, const Mat& indexFrame, const int index);
 	void UpdateDepth(const Mat& depthSrc);
-	void UpdateSkeleton(const Mat& transformed);
+	bool UpdateSkeleton(const Mat& transformed);
 	void UpdateSkeletonAndCoordinate(const Mapper& mapper);
 
 private:

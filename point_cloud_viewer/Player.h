@@ -41,10 +41,14 @@ public:
 		const Mat& indexFrame,
 		const int index,
 		const NUI_SKELETON_DATA& skeletonData);
+	
+	// functions for status retrieval
 	bool IsValid(void) const;
-	bool Segment(void);
-	bool Normal(void);
-	bool GraphCut(void);
+	bool IsNormalComputed(void) const;
+	bool IsLabeled(void) const;
+
+	// functions for post-processing
+	bool Label(const int method = 0);
 	bool Transform(const Player& refPlayer, Mapper& mapper);
 
 	int GetIndex(void) const {return m_index;}
@@ -63,4 +67,8 @@ protected:
 	static const string TAG_PLAYER_INDEX;
 	static const string TAG_LABEL_MATRIX;
 	static const string TAG_NORMAL_MATRIX;
+
+	bool Segment(void);
+	bool Normal(void);
+	bool GraphCut(void);
 };
